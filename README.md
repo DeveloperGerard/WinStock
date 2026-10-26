@@ -1,6 +1,7 @@
 # WinStock
-WinStock es un sistema web con tecnología PWA para la gestión de inventarios de alimentos para ganado
- e insumos de maquinaria del Fundo San Carlos.
+WinStock es un sistema web con tecnología PWA para la gestión 
+de inventarios de alimentos para ganado
+e insumos de maquinaria del Fundo San Carlos.
 
 
 ## Django version 6.1.2
@@ -18,20 +19,20 @@ pip install -r requirements.txt
 2. Al instalar PostgreSql este ya incluye su plataforma propia para administrar bases de datos PostgresSql "pgAdmin 4"
 
 3. Entrar a pgAdmin4 (con la contraseña que creaste durante la instalacion de PostgresSql)
-    1. Expandir servers
-    2. Ingresar contraseña
-    3. Dirigirse a login-->(click derecho)-->(crear)
+    - Expandir servers
+    - Ingresar contraseña
+    - Dirigirse a login + (click derecho) + (crear)
 
 4. Configurar usuario
-    1. General -->name: winStock_user
-    2. Definition -->password: winStock_user
-    3. Privilegios -->login:true , superuser:true 
+    - General(nombre): winStock_user
+    - Definition(contraseña): winStock_user
+    - Privilegios(login):true , superuser:true 
 
 5. Configurar base de datos 
-    1. Click derecho -> create
-    2. General -->database: winStock_db
-    3. Asignar usuario creado
-    4. Deficion --> comprobar que esta en utf8
+    - Click derecho + create
+    - General (base de datos): winStock_db
+    - Asignar usuario creado
+    - Definicion (comprobar que esta en utf8)
 
 6. Crear un archivo .env y configurarlo
     
