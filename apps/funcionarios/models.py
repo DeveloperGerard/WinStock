@@ -1,12 +1,9 @@
 from django.db import models
-
-# Create your models here.
-
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from .managers import FuncionarioManager
 from core.validators import normalizar_rut, validar_rut
+import uuid
 
 
 class Rol(models.Model):
@@ -32,11 +29,11 @@ class Funcionario(AbstractUser):
     """
 
     # required fields
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
-    email = models.EmailField(max_length=255, unique=True)
-    username = models.CharField(max_length=150, null=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True, blank=True)
     # fields para añadir después desde perfil
     phone_number = models.CharField(max_length=30, unique=True, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='rol_id',
