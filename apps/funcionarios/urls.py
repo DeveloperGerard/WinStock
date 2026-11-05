@@ -6,6 +6,7 @@ app_name = "funcionarios"
 urlpatterns = [
     path('', views.inicio ,name="inicio"),
     path('registro/',views.registro,name="registro"),
-    path('iniciarSesion/',views.iniciarSesion,name="iniciarSesion")  
+    path('iniciarSesion/',views.iniciarSesion,name="iniciarSesion")  ,
+    path('cerrarSesion/',views.cerrarSesion,name="cerrarSesion"),
 
 ]

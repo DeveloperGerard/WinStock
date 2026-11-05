@@ -49,6 +49,10 @@ form {
     padding: 28px;
 }
 
+.auth-footer{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;text-align:center;margin:0 28px 24px;padding-top:14px;border-top:1px solid var(--bd);color:#66736c}
+.auth-footer .auth-link{display:inline-block;padding:8px 16px;border-radius:20px;background:var(--g);color:#fff;font-weight:700;text-decoration:none}
+.auth-footer .auth-link:hover{background:#122c22}
+
 h2 {
     font-size: 24px;
 }

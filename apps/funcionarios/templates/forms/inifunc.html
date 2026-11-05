@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Iniciar sesión · WinStock</title>
-  <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}">
+  <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}?v=2">
 </head>
 <body>
   <main class="auth">
@@ -20,8 +20,7 @@
       {% endfor %}
       <button class="btn">Iniciar sesion</button>
     </form>
-    <p>Tienes cuenta</p>
-    <a href="{% url 'funcionarios:registro' %}">Registrar</a>
+    <p class="auth-footer"><span>¿Aún no tienes cuenta?</span> <a class="auth-link" href="{% url 'funcionarios:registro' %}">Regístrate</a></p>
   </main>
 </body>
 </html>

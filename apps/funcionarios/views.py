@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 from .forms import RegistroForm,LoginForm
 # Create your views here.
 
@@ -25,3 +25,7 @@ def iniciarSesion(request):
     else:
         form = LoginForm(request)
     return render(request,"forms/inifunc.html",{"form":form})
+
+def cerrarSesion(request):
+    logout(request)
+    return redirect("funcionarios:iniciarSesion")
