@@ -1,6 +1,5 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import login
-from django.http import HttpResponse
 from .forms import RegistroForm,LoginForm
 # Create your views here.
 
@@ -18,5 +17,11 @@ def registro(request):
     return render(request, "forms/regfunc.html", {"form": form})
 
 def iniciarSesion(request):
-    form = LoginForm()
+    if request.method == "POST":
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect("funcionarios:inicio")
+    else:
+        form = LoginForm(request)
     return render(request,"forms/inifunc.html",{"form":form})

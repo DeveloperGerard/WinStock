@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crear cuenta · WinStock</title>
+  <title>Iniciar sesión · WinStock</title>
   <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}">
 </head>
 <body>
@@ -13,7 +13,7 @@
 
     <form method="post">
       {% csrf_token %}
-      <h2>Crear cuenta</h2>
+      <h2>Iniciar sesión</h2>
       {{ form.non_field_errors }}
       {% for f in form %}
       <label>{{ f.label }}{{ f }}{% for e in f.errors %}<small class="err">{{ e }}</small>{% endfor %}</label>
