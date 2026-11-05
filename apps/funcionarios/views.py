@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout
 from .forms import RegistroForm,LoginForm
+from .models import Funcionario
 # Create your views here.
 
 def inicio(request):
@@ -29,3 +30,8 @@ def iniciarSesion(request):
 def cerrarSesion(request):
     logout(request)
     return redirect("funcionarios:iniciarSesion")
+
+
+def cuentas(request):
+    funcionarios = Funcionario.objects.all()
+    return render(request,"cuentas.html",{"funcionarios":funcionarios})
