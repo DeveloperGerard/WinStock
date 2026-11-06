@@ -1,0 +1,133 @@
+.registro {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.registro__intro {
+    margin-bottom: 22px;
+}
+
+.registro__intro h2 {
+    margin-bottom: 7px;
+}
+
+.registro__intro p {
+    color: var(--mut, #6b7a72);
+    line-height: 1.5;
+}
+
+.registro__form {
+    padding: 26px;
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7e2);
+    border-radius: 6px;
+}
+
+.registro__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.registro__field {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    min-width: 0;
+}
+
+.registro__field label {
+    font-weight: 600;
+}
+
+.registro__field input,
+.registro__field select,
+.registro__field textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--bd, #e5e7e2);
+    border-radius: 4px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+}
+
+.registro__field input:focus,
+.registro__field select:focus,
+.registro__field textarea:focus {
+    outline: 2px solid var(--g, #1a3c2f);
+    outline-offset: 1px;
+}
+
+.registro__field--error input,
+.registro__field--error select,
+.registro__field--error textarea {
+    border-color: #b42318;
+}
+
+.registro__help {
+    color: var(--mut, #6b7a72);
+    line-height: 1.45;
+}
+
+.registro__help ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+}
+
+.registro__error,
+.registro__form .errorlist {
+    color: #b42318;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.registro__form .errorlist {
+    grid-column: 1 / -1;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.registro__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--bd, #e5e7e2);
+}
+
+.registro__submit {
+    padding: 13px 18px;
+    border: 1px solid var(--g, #1a3c2f);
+    border-radius: 4px;
+    background: var(--g, #1a3c2f);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.registro__submit:hover {
+    background: #122c22;
+}
+
+@media (max-width: 640px) {
+    .registro__form {
+        padding: 20px;
+    }
+
+    .registro__fields {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .registro__actions {
+        justify-content: stretch;
+    }
+
+    .registro__submit {
+        width: 100%;
+    }
+}

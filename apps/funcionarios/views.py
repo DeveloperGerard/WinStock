@@ -35,3 +35,11 @@ def cerrarSesion(request):
 def cuentas(request):
     funcionarios = Funcionario.objects.all()
     return render(request,"cuentas.html",{"funcionarios":funcionarios})
+
+
+def crearFuncionario(request):
+    form = RegistroForm(request.POST or None)
+    if form.is_valid():
+        login(request, form.save())
+        return redirect("funcionarios:inicio")
+    return render(request, "registrarFunc.html", {"form": form})

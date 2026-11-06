@@ -9,5 +9,6 @@ urlpatterns = [
     path('iniciarSesion/',views.iniciarSesion,name="iniciarSesion")  ,
     path('cerrarSesion/',views.cerrarSesion,name="cerrarSesion"),
     path('cuentas/',views.cuentas, name="cuentas"),
+    path('crearFuncionario/',views.crearFuncionario,name="crearFuncionario")
 
 ]
