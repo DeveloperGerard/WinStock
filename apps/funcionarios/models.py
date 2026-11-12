@@ -30,16 +30,19 @@ class Funcionario(AbstractUser):
     is_active, date_joined (username se elimina abajo).
     """
 
+    # AbstractUser trae "username" (único y obligatorio); aquí se inicia sesión con el RUT
+    username = None
+
     # required fields
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
-    email = models.EmailField(max_length=255, unique=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
     # fields para añadir después desde perfil
     phone_number = models.CharField(max_length=30, unique=True, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='rol_id',
-                            null=True, blank=True,default=2)
+                            null=True, blank=True)
 
     # configuraciones extra
     USERNAME_FIELD = "rut"  # identificador (user login)
@@ -49,10 +52,13 @@ class Funcionario(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.rut = normalizar_rut(self.rut)
+        if self.rol_id is None:
+            # Rol por defecto: funcionario (se crea si aún no existe)
+            self.rol, _ = Rol.objects.get_or_create(nombre="fun")
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Id:xd{id} {self.first_name} {self.last_name} - RUT: {self.rut}, rol:'{self.rol}'"
+        return f"Id:{self.pk} {self.first_name} {self.last_name} - RUT: {self.rut}, rol:'{self.rol}'"
 
     @property
     def full_name(self):

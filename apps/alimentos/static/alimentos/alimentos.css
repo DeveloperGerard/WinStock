@@ -1,0 +1,252 @@
+.alimentos-page {
+    --alimentos-green: #1a3c2f;
+    --alimentos-green-light: #e8f1ec;
+    --alimentos-border: #e2e8e4;
+    --alimentos-muted: #65756c;
+    --alimentos-red: #a43e3e;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: #20342a;
+}
+
+.alimentos-page h2 {
+    margin: 0;
+    color: #20342a;
+    font-size: 22px;
+}
+
+.alimentos-heading,
+.alimentos-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.alimentos-heading {
+    margin-bottom: 24px;
+}
+
+.alimentos-heading p {
+    margin: 7px 0 0;
+    color: var(--alimentos-muted);
+}
+
+.alimentos-section-heading {
+    margin: 28px 0 14px;
+}
+
+.alimentos-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.alimentos-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 9px 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.alimentos-button:hover {
+    transform: translateY(-1px);
+}
+
+.alimentos-button:focus-visible,
+.alimentos-form input:focus-visible {
+    outline: 3px solid #8cb8a1;
+    outline-offset: 2px;
+}
+
+.alimentos-button-primary {
+    background: var(--alimentos-green);
+    color: #fff;
+}
+
+.alimentos-button-primary:hover {
+    background: #245541;
+}
+
+.alimentos-button-secondary {
+    border-color: var(--alimentos-border);
+    background: #fff;
+    color: var(--alimentos-green);
+}
+
+.alimentos-button-secondary:hover {
+    border-color: #b6c9bd;
+    background: #f7faf8;
+}
+
+.alimentos-button-danger {
+    background: #fff3f1;
+    color: var(--alimentos-red);
+    border-color: #f0d4d0;
+}
+
+.alimentos-button-danger:hover {
+    background: #fbe5e1;
+}
+
+.alimentos-card,
+.alimentos-table-wrapper {
+    overflow: hidden;
+    border: 1px solid var(--alimentos-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgb(22 53 37 / 5%);
+}
+
+.alimentos-form-card {
+    max-width: 680px;
+}
+
+.alimentos-form {
+    padding: 22px;
+}
+
+.alimentos-form p {
+    display: grid;
+    gap: 7px;
+    margin: 0 0 17px;
+}
+
+.alimentos-form label {
+    color: #34493e;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.alimentos-form input {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 11px;
+    border: 1px solid #cbd6cf;
+    border-radius: 6px;
+    background: #fff;
+    color: #20342a;
+    font: inherit;
+}
+
+.alimentos-form input:focus {
+    border-color: #628c73;
+}
+
+.alimentos-form .helptext {
+    color: var(--alimentos-muted);
+    font-size: 12px;
+}
+
+.alimentos-form .errorlist {
+    margin: 0;
+    padding: 0;
+    color: var(--alimentos-red);
+    font-size: 13px;
+    list-style: none;
+}
+
+.alimentos-table-wrapper {
+    overflow-x: auto;
+}
+
+.alimentos-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.alimentos-table th,
+.alimentos-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #edf1ee;
+    vertical-align: middle;
+}
+
+.alimentos-table th {
+    background: #f5f8f6;
+    color: #53665b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.alimentos-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.alimentos-table tbody tr:hover {
+    background: #fbfdfb;
+}
+
+.alimentos-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.alimentos-status-active {
+    background: var(--alimentos-green-light);
+    color: #286145;
+}
+
+.alimentos-status-inactive {
+    background: #f0f1f0;
+    color: #66716b;
+}
+
+.alimentos-inline-form {
+    display: inline;
+}
+
+.alimentos-empty {
+    padding: 28px 16px !important;
+    color: var(--alimentos-muted);
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .alimentos-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .alimentos-form {
+        padding: 17px;
+    }
+
+    .alimentos-table th,
+    .alimentos-table td {
+        padding: 11px 12px;
+    }
+
+    .alimentos-table td:last-child .alimentos-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .alimentos-button {
+        transition: none;
+    }
+
+    .alimentos-button:hover {
+        transform: none;
+    }
+}

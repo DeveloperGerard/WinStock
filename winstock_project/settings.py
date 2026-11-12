@@ -88,6 +88,7 @@ DATABASES = {
     }
 }
 AUTH_USER_MODEL = "funcionarios.Funcionario"
+LOGIN_URL = "funcionarios:iniciarSesion"
 
 
 

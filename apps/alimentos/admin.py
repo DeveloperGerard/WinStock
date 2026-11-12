@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Alimento, MovimientoAlimento
+from .models import Alimento, Movimientos_alimentos
 
 @admin.register(Alimento)
 class AlimentoAdmin(admin.ModelAdmin):

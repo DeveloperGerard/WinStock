@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Alimentos | WinStock{% endblock %}
+{% block page_title %}Alimentos{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="alimentos-page">
+    <div class="alimentos-heading">
+      <div>
+        <h2>Registrar alimento</h2>
+        <p>Agrega un alimento y consulta los registros existentes.</p>
+      </div>
+      <div class="alimentos-actions">
+        <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">Administrar</a>
+        <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:quedastock' %}">Ver stock</a>
+      </div>
+    </div>
+
+    <div class="alimentos-card">
+      <form class="alimentos-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="alimentos-button alimentos-button-primary" type="submit">Guardar alimento</button>
+      </form>
+    </div>
+
+    <div class="alimentos-section-heading">
+      <h2>Alimentos registrados</h2>
+    </div>
+    <div class="alimentos-table-wrapper">
+      <table class="alimentos-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Stock registrado</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alimento in alimentos %}
+            <tr>
+              <td>{{ alimento.nombre }}</td>
+              <td>{{ alimento.stock_registrado }}</td>
+              <td>
+                {% if alimento.estado %}
+                  <span class="alimentos-status alimentos-status-active">Activo</span>
+                {% else %}
+                  <span class="alimentos-status alimentos-status-inactive">Deshabilitado</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td class="alimentos-empty" colspan="3">Aún no hay alimentos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

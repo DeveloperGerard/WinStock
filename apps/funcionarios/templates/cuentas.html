@@ -30,12 +30,12 @@
           <td class="account-actions">
             <a class="edit">Editar</a>
             {% if funcionario.is_active %}
-              <form class="account-disable-form" method="post" action="{% url 'funcionarios:desabilitarFuncionario' public_id=funcionario.public_id %}">
+              <form class="account-disable-form" method="post" action="{% url 'funcionarios:desabilitarFuncionario' uuid=funcionario.uuid %}">
                 {% csrf_token %}
                 <button type="submit" class="disable">Deshabilitar</button>
               </form>
             {% else %}
-              <form class="account-enable-form" method="post" action="{% url 'funcionarios:habilitarFuncionario' public_id=funcionario.public_id %}">
+              <form class="account-enable-form" method="post" action="{% url 'funcionarios:habilitarFuncionario' uuid=funcionario.uuid %}">
                 {% csrf_token %}
                 <button type="submit" class="enable">Habilitar</button>
               </form>

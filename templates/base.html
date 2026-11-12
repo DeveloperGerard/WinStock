@@ -14,11 +14,11 @@
     <nav>
       <a href="">Resumen</a>
       <a href="">Raciones</a>
-      <a href="">Alimentos</a>
+      <a href="{% url 'alimentos:crearalimentos' %}">Alimentos</a>
       <a href="" >Insumos</a>
       <a href="" >Lotes</a>
       <a href="" >Reportes</a>
-      {% if request.user.rol.nombre == 'Admin' %}
+      {% if request.user.rol.nombre == 'adm' %}
         <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
 
       {% endif %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Modificar {{ alimento.nombre }} | WinStock{% endblock %}
+{% block page_title %}Modificar alimento{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="alimentos-page">
+    <div class="alimentos-heading">
+      <div>
+        <h2>Modificar alimento</h2>
+        <p>Actualiza los datos de {{ alimento.nombre }}.</p>
+      </div>
+    </div>
+    <div class="alimentos-card alimentos-form-card">
+      <form class="alimentos-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="alimentos-actions">
+          <button class="alimentos-button alimentos-button-primary" type="submit">Guardar cambios</button>
+          <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}
