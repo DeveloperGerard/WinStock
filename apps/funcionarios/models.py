@@ -31,6 +31,7 @@ class Funcionario(AbstractUser):
     """
 
     # required fields
+    username = None
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     first_name = models.CharField(max_length=60)
