@@ -25,12 +25,13 @@ class RegistroForm(UserCreationForm):
 
     class Meta:
         model = Funcionario
-        fields = ("rut", "first_name", "last_name", "email")
+        fields = ("rut", "first_name", "last_name", "email","rol")
         labels = {
             "rut": "RUT",
             "first_name": "Nombres",
             "last_name": "Apellidos",
             "email": "Correo electrónico",
+            'rol':'Rol'
         }
 
     def __init__(self, *args, **kwargs):
