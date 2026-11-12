@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -14,7 +16,7 @@ class Rol(models.Model):
     }
 
     rol_id = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=10, unique=True, choices=ROLES)
+    nombre = models.CharField(max_length=14, unique=True, choices=ROLES)
 
     def __str__(self):
         # get_nombre_display() muestra el texto ('Director/a') en lugar de la clave ('dir').
@@ -37,7 +39,7 @@ class Funcionario(AbstractUser):
     # fields para añadir después desde perfil
     phone_number = models.CharField(max_length=30, unique=True, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='rol_id',
-                            null=True, blank=True)
+                            null=True, blank=True,default=2)
 
     # configuraciones extra
     USERNAME_FIELD = "rut"  # identificador (user login)
@@ -50,7 +52,7 @@ class Funcionario(AbstractUser):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - RUT: {self.rut}"
+        return f"Id:xd{id} {self.first_name} {self.last_name} - RUT: {self.rut}, rol:'{self.rol}'"
 
     @property
     def full_name(self):

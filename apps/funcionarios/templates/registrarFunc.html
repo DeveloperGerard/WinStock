@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar funcionario · WinStock{% endblock %}
+{% block page_title %}Funcionarios{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'registrarFunc.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="registro">
+    <div class="registro__intro">
+      <h2>Registrar funcionario</h2>
+      <p>Completa los datos para crear una nueva cuenta de funcionario.</p>
+    </div>
+
+    <form class="registro__form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="registro__fields">
+        {% for campo in form %}
+          <div class="registro__field{% if campo.errors %} registro__field--error{% endif %}">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% if campo.help_text %}
+              <small class="registro__help">{{ campo.help_text|safe }}</small>
+            {% endif %}
+            {% for error in campo.errors %}
+              <small class="registro__error">{{ error }}</small>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="registro__actions">
+        <button class="registro__submit" type="submit">Registrar funcionario</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

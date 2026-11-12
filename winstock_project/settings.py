@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #'apps.insumos',
     #'apps.lotes_ganado',
     #'apps.raciones',
+      #'apps.alimentos',
 ]
 
 MIDDLEWARE = [

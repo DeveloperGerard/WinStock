@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear cuenta · WinStock</title>
+  <link rel="stylesheet" href="{% static 'forms/regfuncion.css' %}?v=2">
+</head>
+<body>
+  <main class="auth">
+    <header><h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1></header>
+
+    <form method="post">
+      {% csrf_token %}
+      <h2>Crear cuenta</h2>
+      {{ form.non_field_errors }}
+      {% for f in form %}
+        {% if f.name != 'rol' %}
+          <label for="{{ f.id_for_label }}">{{ f.label }}</label>
+          {{ f }}
+          {% for e in f.errors %}<small class="err">{{ e }}</small>{% endfor %}
+        {% endif %}
+      {% endfor %}
+      <button class="btn">Registrarme</button>
+    </form>
+    <p class="auth-footer"><span>¿Ya tienes cuenta?</span> <a class="auth-link" href="{% url 'funcionarios:iniciarSesion' %}">Inicia sesión</a></p>
+  </main>
+</body>
+</html>
