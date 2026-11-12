@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WinStock{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <aside>
+    <h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1>
+    <nav>
+      <a href="">Resumen</a>
+      <a href="">Raciones</a>
+      <a href="">Alimentos</a>
+      <a href="" >Insumos</a>
+      <a href="" >Lotes</a>
+      <a href="" >Reportes</a>
+      {% if request.user.rol.nombre == 'Admin' %}
+        <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
+
+      {% endif %}
+
+
+    </nav>
+  </aside>
+
+  <header>
+    <b>{% block page_title %}Resumen{% endblock %}</b>
+    <details>
+      <summary> Mi cuenta </summary>
+      <div class="menu"><a href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
+    </details>
+  </header>
+
+  <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

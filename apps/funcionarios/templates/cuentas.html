@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cuentas · WinStock{% endblock %}
+{% block page_title %}Cuentas{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'cuentas.css' %}">{% endblock %}
+
+{% block content %}
+<section class="accounts">
+  <div class="accounts-top">
+    <div>
+      <h2>Gestión de cuentas</h2>
+      <p>Administra los funcionarios registrados en el sistema.</p>
+    </div>
+    <a class="account-create" href="{% url 'funcionarios:crearFuncionario' %}">＋ Crear funcionario</a>
+  </div>
+
+  <div class="accounts-table-wrap">
+    <table class="accounts-table">
+      <thead>
+        <tr><th>Nombre</th><th>Email</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for funcionario in funcionarios %}
+        <tr>
+          <td class="account-name">{{ funcionario.first_name }} {{ funcionario.last_name }}</td>
+          <td>{{ funcionario.email }}</td>
+          <td><span class="account-status {% if funcionario.is_active %}active{% else %}inactive{% endif %}">{% if funcionario.is_active %}Activo{% else %}Deshabilitado{% endif %}</span></td>
+          
+          <td class="account-actions">
+            <a class="edit">Editar</a>
+            {% if funcionario.is_active %}
+              <form class="account-disable-form" method="post" action="{% url 'funcionarios:desabilitarFuncionario' public_id=funcionario.public_id %}">
+                {% csrf_token %}
+                <button type="submit" class="disable">Deshabilitar</button>
+              </form>
+            {% else %}
+              <form class="account-enable-form" method="post" action="{% url 'funcionarios:habilitarFuncionario' public_id=funcionario.public_id %}">
+                {% csrf_token %}
+                <button type="submit" class="enable">Habilitar</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td class="accounts-empty" colspan="4">No hay funcionarios para mostrar.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
