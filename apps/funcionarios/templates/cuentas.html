@@ -26,7 +26,21 @@
           <td class="account-name">{{ funcionario.first_name }} {{ funcionario.last_name }}</td>
           <td>{{ funcionario.email }}</td>
           <td><span class="account-status {% if funcionario.is_active %}active{% else %}inactive{% endif %}">{% if funcionario.is_active %}Activo{% else %}Deshabilitado{% endif %}</span></td>
-          <td class="account-actions"><button type="button">Editar</button><button type="button" class="disable">Deshabilitar</button></td>
+          
+          <td class="account-actions">
+            <a class="edit">Editar</a>
+            {% if funcionario.is_active %}
+              <form class="account-disable-form" method="post" action="{% url 'funcionarios:desabilitarFuncionario' public_id=funcionario.public_id %}">
+                {% csrf_token %}
+                <button type="submit" class="disable">Deshabilitar</button>
+              </form>
+            {% else %}
+              <form class="account-enable-form" method="post" action="{% url 'funcionarios:habilitarFuncionario' public_id=funcionario.public_id %}">
+                {% csrf_token %}
+                <button type="submit" class="enable">Habilitar</button>
+              </form>
+            {% endif %}
+          </td>
         </tr>
         {% empty %}
         <tr><td class="accounts-empty" colspan="4">No hay funcionarios para mostrar.</td></tr>

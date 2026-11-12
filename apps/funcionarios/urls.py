@@ -9,6 +9,7 @@ urlpatterns = [
     path('iniciarSesion/',views.iniciarSesion,name="iniciarSesion")  ,
     path('cerrarSesion/',views.cerrarSesion,name="cerrarSesion"),
     path('cuentas/',views.cuentas, name="cuentas"),
-    path('crearFuncionario/',views.crearFuncionario,name="crearFuncionario")
-
+    path('crearFuncionario/',views.crearFuncionario,name="crearFuncionario"),
+    path('desabilitarFuncionario/<uuid:public_id>/', views.desabilitarFuncionario, name="desabilitarFuncionario"),
+    path('habilitarFuncionario/<uuid:public_id>/', views.habilitarFuncionario, name="habilitarFuncionario")
 ]
