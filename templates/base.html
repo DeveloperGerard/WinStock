@@ -18,7 +18,7 @@
       <a href="" >Insumos</a>
       <a href="" >Lotes</a>
       <a href="" >Reportes</a>
-      {% if request.user.is_superuser %}
+      {% if request.user.rol.nombre == 'Admin' %}
         <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
 
       {% endif %}
@@ -30,7 +30,7 @@
   <header>
     <b>{% block page_title %}Resumen{% endblock %}</b>
     <details>
-      <summary><span class="av"></span> Mi cuenta ⌄</summary>
+      <summary> Mi cuenta </summary>
       <div class="menu"><a href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
     </details>
   </header>

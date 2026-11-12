@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 # Create your models here.
@@ -17,7 +19,7 @@ class Rol(models.Model):
     }
 
     rol_id = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=10, unique=True, choices=ROLES)
+    nombre = models.CharField(max_length=14, unique=True, choices=ROLES)
 
     def __str__(self):
         # get_nombre_display() muestra el texto ('Director/a') en lugar de la clave ('dir').
@@ -32,6 +34,7 @@ class Funcionario(AbstractUser):
     """
 
     # required fields
+    public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
@@ -40,7 +43,7 @@ class Funcionario(AbstractUser):
     # fields para añadir después desde perfil
     phone_number = models.CharField(max_length=30, unique=True, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='rol_id',
-                            null=True, blank=True)
+                            null=True, blank=True,default=2)
 
     # configuraciones extra
     USERNAME_FIELD = "rut"  # identificador (user login)
@@ -53,7 +56,7 @@ class Funcionario(AbstractUser):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Id:xd{id} {self.first_name} {self.last_name} - RUT: {self.rut}"
+        return f"Id:xd{id} {self.first_name} {self.last_name} - RUT: {self.rut}, rol:'{self.rol}'"
 
     @property
     def full_name(self):

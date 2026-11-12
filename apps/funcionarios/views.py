@@ -1,7 +1,10 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout
+from django.contrib.auth.decorators import login_required
 from .forms import RegistroForm,LoginForm
+from django.http import HttpResponse
 from .models import Funcionario
+from .decorators import rol_requerido
 # Create your views here.
 
 def inicio(request):
@@ -43,3 +46,8 @@ def crearFuncionario(request):
         login(request, form.save())
         return redirect("funcionarios:inicio")
     return render(request, "registrarFunc.html", {"form": form})
+
+
+@rol_requerido('Admin')
+def desabilitarFuncionario(request):
+    pass
