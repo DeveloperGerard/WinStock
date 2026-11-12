@@ -29,7 +29,7 @@ class Funcionario(AbstractUser):
     password, email, first_name, last_name, is_staff, is_superuser,
     is_active, date_joined (username se elimina abajo).
     """
-
+    username = None
     # required fields
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
