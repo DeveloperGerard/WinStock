@@ -1,22 +1,22 @@
 from django.db import models
+from django.conf import settings
 
-# Create your models here.
-'''
+
+class racion_diaria(models.Model):
+    fecha = models.DateField()
+    turno = models.CharField(max_length=50)
+    lote_id = models.ForeignKey('lotes_ganado.Lote', on_delete=models.CASCADE)
+    usuario_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'racion_diaria'
+
+
 class detalle_racion(models.Model):
-    id_detalle_racion = models.AutoField(primary_key=True)
-    id_racion = models.ForeignKey('raciones.racion', on_delete=models.CASCADE)
-    id_alimento = models.ForeignKey('alimentos.alimento', on_delete=models.CASCADE)
-    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    racion_id = models.ForeignKey('raciones.racion_diaria', on_delete=models.CASCADE)
+    alimento_id = models.ForeignKey('alimentos.Alimento', on_delete=models.CASCADE)
+    kg = models.DecimalField(max_digits=10, decimal_places=2)
     stock_insuficiente = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'detalle_racion'
-
-class racion_diaria(models.Model):
-    id_racion_diaria = models.AutoField(primary_key=True)
-    fecha = models.DateField()
-    id_racion = models.ForeignKey('raciones.racion', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'racion_diaria'
-        '''
