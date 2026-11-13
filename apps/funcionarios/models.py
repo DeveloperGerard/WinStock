@@ -39,7 +39,7 @@ class Funcionario(AbstractUser):
     # fields para añadir después desde perfil
     phone_number = models.CharField(max_length=30, unique=True, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT, db_column='rol_id',
-                            null=True, blank=True,default=2)
+                            null=True, blank=True)
 
     # configuraciones extra
     USERNAME_FIELD = "rut"  # identificador (user login)
