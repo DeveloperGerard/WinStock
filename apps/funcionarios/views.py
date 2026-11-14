@@ -10,7 +10,7 @@ from .decorators import rol_requerido
 
 def inicio(request):
     if request.user.is_authenticated:
-        return render(request,"base.html")
+        return render(request,"base.html")  #! <--- que renderizamos aqui??!?!
     return redirect("funcionarios:iniciarSesion")
 
 
@@ -51,8 +51,8 @@ def crearFuncionario(request):
 
 @rol_requerido("Admin")
 @require_POST
-def desabilitarFuncionario(request, public_id):
-    funcionario = get_object_or_404(Funcionario, public_id=public_id)
+def desabilitarFuncionario(request, uuid):
+    funcionario = get_object_or_404(Funcionario, uuid=uuid)
     funcionario.is_active = False
     funcionario.save(update_fields=["is_active"])
     return redirect("funcionarios:cuentas")
@@ -60,8 +60,8 @@ def desabilitarFuncionario(request, public_id):
 
 @rol_requerido("Admin")
 @require_POST
-def habilitarFuncionario(request, public_id):
-    funcionario = get_object_or_404(Funcionario, public_id=public_id)
+def habilitarFuncionario(request, uuid):
+    funcionario = get_object_or_404(Funcionario, uuid=uuid)
     funcionario.is_active = True
     funcionario.save(update_fields=["is_active"])
     return redirect("funcionarios:cuentas")
