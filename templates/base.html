@@ -15,7 +15,7 @@
       <a href="">Resumen</a>
       <a href="">Raciones</a>
       <a href="">Alimentos</a>
-      <a href="" >Insumos</a>
+      <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
       <a href="" >Lotes</a>
       <a href="" >Reportes</a>
       {% if request.user.rol.nombre == 'Admin' %}

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #'apps.alimentos',
     'apps.funcionarios',
-    #'apps.insumos',
+    'apps.insumos',
     #'apps.lotes_ganado',
     #'apps.raciones',
       #'apps.alimentos',

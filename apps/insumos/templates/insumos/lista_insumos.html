@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Insumos · WinStock{% endblock %}
+{% block page_title %}Insumos{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'insumos.css' %}">{% endblock %}
+
+{% block content %}
+<section class="insumos-page">
+  <div class="insumos-heading">
+    <div>
+      <h2>Insumos</h2>
+      <p>Insumos para maquinaria del predio.</p>
+    </div>
+    <span class="tag">Inventario</span>
+  </div>
+
+  <div class="insumos-toolbar">
+    <a class="btn dark" href="{% url 'insumos:crear' %}">Registrar insumo</a>
+  </div>
+
+  <div class="insumos-table-wrap">
+    <table class="insumos-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Cantidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for insumo in insumos %}
+        <tr>
+          <td>{{ insumo.nombre }}</td>
+          <td>{% if insumo.categoria %}{{ insumo.categoria.nombre }}{% else %}Sin categoría{% endif %}</td>
+          <td>{{ insumo.cantidad }} {{ insumo.get_unidad_display }}</td>
+          <td class="insumos-actions">
+            <button type="button" disabled title="Funcionalidad aún no disponible">Modificar stock</button>
+            <button type="button" disabled title="Funcionalidad aún no disponible">Editar</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="insumos-empty" colspan="4">No hay insumos registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

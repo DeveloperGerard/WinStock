@@ -58,3 +58,11 @@ class Funcionario(AbstractUser):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    """
+Lubricantes y fluidos
+Filtros y repuestos
+Elementos de reparacion
+Componentes y accesorios
+Combustible
+"""    
