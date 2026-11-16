@@ -5,7 +5,30 @@ from unittest.mock import Mock, patch
 from django.test import RequestFactory, SimpleTestCase
 from django.urls import reverse
 
-from .views import InsumoDeleteView, crear_insumo
+from .views import InsumoDeleteView, crear_insumo, lista_insumos
+
+
+class ListaInsumosTests(SimpleTestCase):
+    def test_selected_category_filters_inventory(self):
+        request = RequestFactory().get("/insumos/", {"categoria": "3"})
+        request.user = SimpleNamespace(is_authenticated=True)
+        categoria = object()
+
+        with (
+            patch("apps.insumos.views.Insumo") as insumo_model,
+            patch("apps.insumos.views.FiltroCategoriaForm") as form_class,
+            patch("apps.insumos.views.render") as render,
+        ):
+            queryset = insumo_model.objects.select_related.return_value
+            queryset.order_by.return_value = queryset
+            form = form_class.return_value
+            form.is_valid.return_value = True
+            form.cleaned_data = {"categoria": categoria}
+
+            lista_insumos(request)
+
+        queryset.filter.assert_called_once_with(categoria=categoria)
+        self.assertTrue(render.call_args.args[2]["categoria_seleccionada"])
 
 
 class CrearInsumoViewTests(SimpleTestCase):

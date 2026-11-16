@@ -1,6 +1,15 @@
 from django import forms
 
-from .models import Insumo
+from .models import Categoria, Insumo
+
+
+class FiltroCategoriaForm(forms.Form):
+    categoria = forms.ModelChoiceField(
+        queryset=Categoria.objects.order_by("nombre"),
+        required=False,
+        empty_label="Todas las categorías",
+        label="Categoría",
+    )
 
 
 class InsumoForm(forms.ModelForm):

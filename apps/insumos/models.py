@@ -40,10 +40,3 @@ class Insumo(models.Model):
         )
 
 
-"""
-Lubricantes y fluidos
-Filtros y repuestos
-Elementos de reparacion
-Componentes y accesorios
-Combustible
-"""    

@@ -19,6 +19,18 @@
     <a class="btn dark" href="{% url 'insumos:crear' %}">Registrar insumo</a>
   </div>
 
+  <form class="insumos-filter" method="get">
+    <div class="insumos-filter__field">
+      {{ filtro_form.categoria.label_tag }}
+      {{ filtro_form.categoria }}
+      {% for error in filtro_form.categoria.errors %}
+        <small class="insumos-filter__error">{{ error }}</small>
+      {% endfor %}
+    </div>
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn" href="{% url 'insumos:lista' %}">Limpiar</a>
+  </form>
+
   <div class="insumos-table-wrap">
     <table class="insumos-table">
       <thead>
@@ -41,7 +53,13 @@
         </tr>
         {% empty %}
         <tr>
-          <td class="insumos-empty" colspan="4">No hay insumos registrados.</td>
+          <td class="insumos-empty" colspan="4">
+            {% if categoria_seleccionada %}
+              No hay insumos en esta categoría.
+            {% else %}
+              No hay insumos registrados.
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>

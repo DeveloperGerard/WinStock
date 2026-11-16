@@ -20,6 +20,37 @@
     margin-bottom: 30px;
 }
 
+.insumos-filter {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.insumos-filter__field {
+    display: grid;
+    gap: 6px;
+}
+
+.insumos-filter select {
+    min-width: 220px;
+    padding: 10px 12px;
+    border: 1px solid var(--bd);
+    border-radius: 4px;
+    background: #fff;
+    font: inherit;
+}
+
+.insumos-filter .btn {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.insumos-filter__error {
+    color: #9e2b2b;
+}
+
 .insumos-table-wrap {
     overflow-x: auto;
     background: #fff;

@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 
-from .forms import InsumoForm
+from .forms import FiltroCategoriaForm, InsumoForm
 from .models import Insumo
 # Create your views here.
 
@@ -13,7 +13,22 @@ from .models import Insumo
 def lista_insumos(request):
     if request.user.is_authenticated:
         insumos = Insumo.objects.select_related("categoria").order_by("nombre")
-        return render(request, "insumos/lista_insumos.html", {"insumos": insumos})
+        filtro_form = FiltroCategoriaForm(request.GET)
+        categoria = None
+        if filtro_form.is_valid():
+            categoria = filtro_form.cleaned_data["categoria"]
+            if categoria:
+                insumos = insumos.filter(categoria=categoria)
+
+        return render(
+            request,
+            "insumos/lista_insumos.html",
+            {
+                "insumos": insumos,
+                "filtro_form": filtro_form,
+                "categoria_seleccionada": categoria is not None,
+            },
+        )
     return redirect("funcionarios:iniciarSesion")
 
 
@@ -35,5 +50,8 @@ class InsumoDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "insumos/insumo_confirm_delete.html"
     success_url = reverse_lazy("insumos:lista")
     login_url = "funcionarios:iniciarSesion"
+    
+    #Toma el valor de parametro  uuid
     slug_field = "uuid"
+    #Y este busca el valor uuid dentro del modelo
     slug_url_kwarg = "uuid"
