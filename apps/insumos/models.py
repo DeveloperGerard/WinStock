@@ -1,14 +1,16 @@
+import uuid
+
 from django.db import models
 from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Categoria(models.Model):
     CATEGORIAS = {
-            'LubriFlui':'Lubricantes y fluidos',
-            'FilRepue':'Filtros y repuestos',
-            'ElemRepa':'Elementos de reparacion',
-            'CompAcce':'Componentes y accesorios',
-            'Comb':'Combustible'
+            'Lubricantes y fluidos':'Lubricantes y fluidos',
+            'Filtros y repuestos':'Filtros y repuestos',
+            'Elementos de reparacion':'Elementos de reparacion',
+            'Componentes y accesorios':'Componentes y accesorios',
+            'Combustible':'Combustible'
         }
     categoria_id = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=25,unique=True,choices=CATEGORIAS)
@@ -19,6 +21,7 @@ class Categoria(models.Model):
     
 
 class Insumo(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     nombre = models.CharField(max_length=40,unique=True)
     cantidad = models.IntegerField(validators=[MinValueValidator(0)])
     unidad = models.CharField(

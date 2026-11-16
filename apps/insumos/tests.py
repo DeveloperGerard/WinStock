@@ -1,10 +1,11 @@
+import uuid
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.test import RequestFactory, SimpleTestCase
 from django.urls import reverse
 
-from .views import crear_insumo
+from .views import InsumoDeleteView, crear_insumo
 
 
 class CrearInsumoViewTests(SimpleTestCase):
@@ -40,3 +41,36 @@ class CrearInsumoViewTests(SimpleTestCase):
         form.save.assert_not_called()
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Registrar insumo")
+
+
+class InsumoDeleteViewTests(SimpleTestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.uuid = uuid.uuid4()
+        self.url = reverse("insumos:eliminar", kwargs={"uuid": self.uuid})
+        self.insumo = SimpleNamespace(nombre="Filtro hidráulico", delete=Mock())
+
+    def test_get_displays_confirmation_without_deleting(self):
+        request = self.factory.get(self.url)
+        request.user = SimpleNamespace(is_authenticated=True)
+
+        with patch.object(InsumoDeleteView, "get_object", return_value=self.insumo):
+            response = InsumoDeleteView.as_view()(request, uuid=self.uuid)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Esta acción no se puede deshacer.")
+        self.insumo.delete.assert_not_called()
+
+    def test_post_deletes_and_redirects_to_inventory(self):
+        request = self.factory.post(self.url)
+        request.user = SimpleNamespace(is_authenticated=True)
+
+        with patch.object(InsumoDeleteView, "get_object", return_value=self.insumo):
+            response = InsumoDeleteView.as_view()(request, uuid=self.uuid)
+
+        self.insumo.delete.assert_called_once_with()
+        self.assertRedirects(
+            response,
+            reverse("insumos:lista"),
+            fetch_redirect_response=False,
+        )

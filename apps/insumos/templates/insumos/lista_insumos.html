@@ -36,8 +36,7 @@
           <td>{% if insumo.categoria %}{{ insumo.categoria.nombre }}{% else %}Sin categoría{% endif %}</td>
           <td>{{ insumo.cantidad }} {{ insumo.get_unidad_display }}</td>
           <td class="insumos-actions">
-            <button type="button" disabled title="Funcionalidad aún no disponible">Modificar stock</button>
-            <button type="button" disabled title="Funcionalidad aún no disponible">Editar</button>
+            <a class="btn" href="{% url 'insumos:eliminar' insumo.uuid %}">Eliminar</a>
           </td>
         </tr>
         {% empty %}

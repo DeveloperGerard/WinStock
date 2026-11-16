@@ -55,17 +55,38 @@
     white-space: nowrap;
 }
 
-.insumos-actions button {
+.insumos-actions .btn {
     padding: 10px 12px;
     margin-right: 4px;
-    border: 1px solid var(--bd);
-    border-radius: 4px;
+}
+
+.insumo-delete-confirmation {
+    max-width: 640px;
+    padding: 24px;
     background: #fff;
-    color: #1b2e25;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+}
+
+.insumo-delete-confirmation__warning {
+    margin: 20px 0;
+    padding: 14px;
+    background: #fff8e5;
+    border-left: 4px solid #c58b16;
+}
+
+.insumo-delete-confirmation__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.insumo-delete-confirmation__submit {
+    color: #fff;
+    background: #9e2b2b;
+    border-color: #9e2b2b;
     font: inherit;
-    font-weight: 700;
-    opacity: .65;
-    cursor: not-allowed;
+    cursor: pointer;
 }
 
 .insumos-empty {
