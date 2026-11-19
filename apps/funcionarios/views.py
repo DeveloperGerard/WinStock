@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .forms import RegistroForm, CrearFuncionarioForm, LoginForm
+from .forms import RegistroForm, CrearFuncionarioForm, EditarFuncionarioForm, LoginForm
 from django.http import HttpResponse
 from .models import Funcionario
 from .decorators import rol_requerido
@@ -49,7 +49,20 @@ def crearFuncionario(request):
         # Solo se crea la cuenta: el admin NO debe quedar logueado como el nuevo usuario
         form.save()
         return redirect("funcionarios:cuentas")
-    return render(request, "registrarFunc.html", {"form": form})
+    return render(request, "registrarFunc.html", {"form": form, "modo": "crear"})
+
+
+@rol_requerido("adm")
+def editarFuncionario(request, uuid):
+    funcionario = get_object_or_404(Funcionario, uuid=uuid)
+    form = EditarFuncionarioForm(
+        request.POST if request.method == "POST" else None,
+        instance=funcionario,
+    )
+    if form.is_valid():
+        form.save()
+        return redirect("funcionarios:cuentas")
+    return render(request, "registrarFunc.html", {"form": form, "modo": "editar"})
 
 
 @rol_requerido("adm")

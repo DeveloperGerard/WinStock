@@ -9,6 +9,7 @@ urlpatterns = [
     path('cerrarSesion/',views.cerrarSesion,name="cerrarSesion"),
     path('cuentas/',views.cuentas, name="cuentas"),
     path('crearFuncionario/',views.crearFuncionario,name="crearFuncionario"),
+    path('editarFuncionario/<uuid:uuid>/', views.editarFuncionario, name="editarFuncionario"),
     path('desabilitarFuncionario/<uuid:uuid>/', views.desabilitarFuncionario, name="desabilitarFuncionario"),
     path('habilitarFuncionario/<uuid:uuid>/', views.habilitarFuncionario, name="habilitarFuncionario")
 ]

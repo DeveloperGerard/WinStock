@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Registrar funcionario · WinStock{% endblock %}
-{% block page_title %}Funcionarios{% endblock %}
+{% block title %}{% if modo == "editar" %}Editar funcionario{% else %}Registrar funcionario{% endif %} · WinStock{% endblock %}
+{% block page_title %}{% if modo == "editar" %}Editar funcionario{% else %}Funcionarios{% endif %}{% endblock %}
 
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'registrarFunc.css' %}">
@@ -11,8 +11,8 @@
 {% block content %}
   <section class="registro">
     <div class="registro__intro">
-      <h2>Registrar funcionario</h2>
-      <p>Completa los datos para crear una nueva cuenta de funcionario.</p>
+      <h2>{% if modo == "editar" %}Editar funcionario{% else %}Registrar funcionario{% endif %}</h2>
+      <p>{% if modo == "editar" %}Actualiza los datos de la cuenta del funcionario.{% else %}Completa los datos para crear una nueva cuenta de funcionario.{% endif %}</p>
     </div>
 
     <form class="registro__form" method="post">
@@ -35,7 +35,7 @@
       </div>
 
       <div class="registro__actions">
-        <button class="registro__submit" type="submit">Registrar funcionario</button>
+        <button class="registro__submit" type="submit">{% if modo == "editar" %}Guardar cambios{% else %}Registrar funcionario{% endif %}</button>
       </div>
     </form>
   </section>
