@@ -10,7 +10,7 @@ from .decorators import rol_requerido
 
 def inicio(request):
     if request.user.is_authenticated:
-        return render(request,"base.html")
+        return render(request,"inicio.html")
     return redirect("funcionarios:iniciarSesion")
 
 
