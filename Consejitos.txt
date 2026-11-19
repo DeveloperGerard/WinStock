@@ -1,0 +1,7 @@
+Consejitos:
+1)Si te dio error te recomiendo borrar o vaciar la base de datos y realizar las migraciones de nuevo
+2)Cuando tengas la base de datos creada busca funcionarios_rol y inserta 2 roles
+  (1,"Admin"),
+  (2,"Func")
+Con esto se manejara el acceso a ciertas paginas 
+
