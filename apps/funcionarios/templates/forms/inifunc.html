@@ -4,6 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173D30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
   <title>Iniciar sesión · WinStock</title>
   <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}?v=2">
 </head>
@@ -20,7 +24,14 @@
       {% endfor %}
       <button class="btn">Iniciar sesion</button>
     </form>
-    
   </main>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{% url 'service_worker' %}")
+          .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
+      });
+    }
+  </script>
 </body>
 </html>
