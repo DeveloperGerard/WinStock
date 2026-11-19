@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Stock de alimentos | WinStock{% endblock %}
+{% block page_title %}Stock de alimentos{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="alimentos-page">
+    <div class="alimentos-heading">
+      <div>
+        <h2>Stock registrado</h2>
+        <p>Consulta el stock de los alimentos activos.</p>
+      </div>
+      <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:crearalimentos' %}">Volver a alimentos</a>
+    </div>
+    <div class="alimentos-table-wrapper">
+      <table class="alimentos-table">
+        <thead>
+          <tr>
+            <th>Alimento</th>
+            <th>Stock registrado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alimento in alimentos %}
+            <tr>
+              <td>{{ alimento.nombre }}</td>
+              <td>{{ alimento.stock_registrado }}</td>
+            </tr>
+          {% empty %}
+            <tr><td class="alimentos-empty" colspan="2">No hay alimentos activos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

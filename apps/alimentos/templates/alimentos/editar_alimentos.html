@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Administrar alimentos | WinStock{% endblock %}
+{% block page_title %}Administrar alimentos{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="alimentos-page">
+    <div class="alimentos-heading">
+      <div>
+        <h2>Administrar alimentos</h2>
+        <p>Edita los datos o deshabilita los alimentos que ya no se utilizan.</p>
+      </div>
+      <a class="alimentos-button alimentos-button-primary" href="{% url 'alimentos:crearalimentos' %}">Registrar alimento</a>
+    </div>
+
+    <div class="alimentos-table-wrapper">
+      <table class="alimentos-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Stock registrado</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alimento in alimentos %}
+            <tr>
+              <td>{{ alimento.nombre }}</td>
+              <td>{{ alimento.stock_registrado }}</td>
+              <td>
+                {% if alimento.estado %}
+                  <span class="alimentos-status alimentos-status-active">Activo</span>
+                {% else %}
+                  <span class="alimentos-status alimentos-status-inactive">Deshabilitado</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="alimentos-actions">
+                  <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:modificar_alimentos' alimento.id %}">Modificar</a>
+                  {% if alimento.estado %}
+                    <form class="alimentos-inline-form" method="post" action="{% url 'alimentos:deshabilitar_alimentos' alimento.id %}">
+                      {% csrf_token %}
+                      <button class="alimentos-button alimentos-button-danger" type="submit">Deshabilitar</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td class="alimentos-empty" colspan="4">Aún no hay alimentos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

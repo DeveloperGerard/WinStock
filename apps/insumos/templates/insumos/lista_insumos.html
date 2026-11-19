@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Insumos · WinStock{% endblock %}
+{% block page_title %}Insumos{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'insumos.css' %}">{% endblock %}
+
+{% block content %}
+<section class="insumos-page">
+  <div class="insumos-heading">
+    <div>
+      <h2>Insumos</h2>
+      <p>Insumos para maquinaria del predio.</p>
+    </div>
+    <span class="tag">Inventario</span>
+  </div>
+
+  <div class="insumos-toolbar">
+    <a class="btn dark" href="{% url 'insumos:crear' %}">Registrar insumo</a>
+  </div>
+
+  <form class="insumos-filter" method="get">
+    <div class="insumos-filter__field">
+      {{ filtro_form.categoria.label_tag }}
+      {{ filtro_form.categoria }}
+      {% for error in filtro_form.categoria.errors %}
+        <small class="insumos-filter__error">{{ error }}</small>
+      {% endfor %}
+    </div>
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn" href="{% url 'insumos:lista' %}">Limpiar</a>
+  </form>
+
+  <div class="insumos-table-wrap">
+    <table class="insumos-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Cantidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for insumo in insumos %}
+        <tr>
+          <td>{{ insumo.nombre }}</td>
+          <td>{% if insumo.categoria %}{{ insumo.categoria.nombre }}{% else %}Sin categoría{% endif %}</td>
+          <td>{{ insumo.cantidad }} {{ insumo.get_unidad_display }}</td>
+          <td class="insumos-actions">
+            <a class="btn" href="{% url 'insumos:eliminar' insumo.uuid %}">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="insumos-empty" colspan="4">
+            {% if categoria_seleccionada %}
+              No hay insumos en esta categoría.
+            {% else %}
+              No hay insumos registrados.
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -21,17 +21,16 @@ class LoginForm(AuthenticationForm):
 
 
 class RegistroForm(UserCreationForm):
-    """Solo campos requeridos. phone_number y rol se completan luego en el perfil."""
+    """Registro público: el rol lo asigna el sistema (funcionario), nunca el usuario."""
 
     class Meta:
         model = Funcionario
-        fields = ("rut", "first_name", "last_name", "email","rol")
+        fields = ("rut", "first_name", "last_name", "email")
         labels = {
             "rut": "RUT",
             "first_name": "Nombres",
             "last_name": "Apellidos",
             "email": "Correo electrónico",
-            'rol':'Rol'
         }
 
     def __init__(self, *args, **kwargs):
@@ -49,3 +48,11 @@ class RegistroForm(UserCreationForm):
 
     def clean_rut(self):
         return normalizar_rut(self.cleaned_data["rut"])
+
+
+class CrearFuncionarioForm(RegistroForm):
+    """Alta de funcionarios hecha por un administrador: permite elegir el rol."""
+
+    class Meta(RegistroForm.Meta):
+        fields = RegistroForm.Meta.fields + ("rol",)
+        labels = {**RegistroForm.Meta.labels, "rol": "Rol"}

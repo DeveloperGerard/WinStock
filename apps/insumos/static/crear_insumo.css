@@ -1,0 +1,128 @@
+.registro-insumo {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.registro-insumo__intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.registro-insumo__intro h2 {
+    margin-bottom: 7px;
+}
+
+.registro-insumo__intro p {
+    color: var(--mut, #6b7a72);
+    line-height: 1.5;
+}
+
+.registro-insumo__form {
+    padding: 26px;
+    background: #fff;
+    border: 1px solid var(--bd, #e5e7e2);
+    border-radius: 6px;
+}
+
+.registro-insumo__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.registro-insumo__field {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    min-width: 0;
+}
+
+.registro-insumo__field label {
+    font-weight: 600;
+}
+
+.registro-insumo__field input,
+.registro-insumo__field select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--bd, #e5e7e2);
+    border-radius: 4px;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+}
+
+.registro-insumo__field input:focus,
+.registro-insumo__field select:focus {
+    outline: 2px solid var(--g, #1a3c2f);
+    outline-offset: 1px;
+}
+
+.registro-insumo__field--error input,
+.registro-insumo__field--error select {
+    border-color: #b42318;
+}
+
+.registro-insumo__error,
+.registro-insumo__form .errorlist {
+    color: #b42318;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.registro-insumo__form .errorlist {
+    grid-column: 1 / -1;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.registro-insumo__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 26px;
+    padding-top: 20px;
+    border-top: 1px solid var(--bd, #e5e7e2);
+}
+
+.registro-insumo__submit {
+    padding: 13px 18px;
+    border: 1px solid var(--g, #1a3c2f);
+    border-radius: 4px;
+    background: var(--g, #1a3c2f);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.registro-insumo__submit:hover {
+    background: #122c22;
+}
+
+@media (max-width: 640px) {
+    .registro-insumo__intro {
+        flex-direction: column;
+    }
+
+    .registro-insumo__form {
+        padding: 20px;
+    }
+
+    .registro-insumo__fields {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .registro-insumo__actions {
+        justify-content: stretch;
+    }
+
+    .registro-insumo__submit {
+        width: 100%;
+    }
+}
