@@ -1,0 +1,67 @@
+# PWA de WinStock
+
+## Qué puede hacer actualmente
+
+- Presenta un manifest con el nombre, iconos, colores y modo `standalone` de WinStock.
+- Enlaza el manifest y registra un Service Worker desde `/service-worker.js` tanto en `base.html` como en la pantalla de acceso.
+- Muestra **Instalar WinStock** solo si el navegador emite `beforeinstallprompt`. La instalación y el acceso resultante los administra el navegador; Edge no fija automáticamente la aplicación al menú Inicio ni al escritorio.
+- El botón propio y la ayuda de instalación para iOS solo están en páginas que usan `base.html`; la pantalla de acceso permite que el navegador detecte el manifest, pero no tiene ese botón.
+- Precarga algunos recursos estáticos y trata de guardar otros recursos estáticos solicitados. Si falla la navegación, muestra una página informativa offline.
+
+No permite consultar ni modificar inventario sin conexión: las páginas, sesiones y datos del servidor no se guardan en la caché.
+
+## Archivos PWA
+
+```text
+ProyectoGit/
+├── PWA_README.md
+└── winStock/
+    ├── templates/
+    │   └── base.html
+    ├── winstock_project/
+    │   ├── urls.py
+    │   ├── pwa_views.py
+    │   └── settings.py
+    ├── static/
+    │   ├── manifest.webmanifest
+    │   ├── service-worker.js
+    │   ├── style.css
+    │   └── pwa/
+    │       ├── icon-192.png
+    │       ├── icon-512.png
+    │       └── offline.html
+    └── apps/
+        └── funcionarios/
+            └── templates/
+                └── forms/
+                    └── inifunc.html
+```
+
+### Cómo se conectan
+
+1. `base.html` y `inifunc.html` enlazan `static/manifest.webmanifest` y registran el Service Worker. `base.html` además contiene el botón de instalación, su interacción y la ayuda de iOS.
+2. Desde esas plantillas, Django resuelve la ruta `service_worker` definida en `winstock_project/urls.py`.
+3. Esa ruta llama a `pwa_views.py`, que entrega `static/service-worker.js` desde la raíz para darle alcance a toda la aplicación.
+4. El Service Worker precarga `offline.html`, la hoja de estilos y los dos iconos. También intenta guardar otros recursos solicitados bajo `/static/`. En una navegación sin red devuelve `offline.html`.
+5. `settings.py` define `/static/`, el directorio fuente de estáticos y el destino de `collectstatic`; `style.css` da formato a los controles PWA.
+6. La pantalla `apps/funcionarios/templates/forms/inifunc.html` es independiente y **no extiende `base.html`**; por eso tiene sus propios metadatos PWA y registro del Service Worker. No contiene el botón propio de instalación.
+
+## Instalación según plataforma
+
+- **Windows/Edge o Chrome:** se instala desde la opción que ofrezca el navegador. Si ya está instalada en ese perfil de Edge, puede abrirse desde `edge://apps`; fijarla a Inicio o crear un acceso de escritorio son acciones aparte.
+- **Android:** abre el sitio en Chrome y utiliza la opción de instalar o añadir a la pantalla de inicio. El botón propio, disponible tras iniciar sesión, depende de que Chrome emita `beforeinstallprompt`.
+- **iPhone/iPad:** no se usa `beforeinstallprompt`; en Safari se añade desde **Compartir → Añadir a pantalla de inicio**. El texto de ayuda de WinStock solo aparece después de iniciar sesión, en páginas que usan `base.html`.
+
+Una PWA no es un `.exe` ni un APK. Para que otros dispositivos accedan, el sitio debe estar publicado en un dominio accesible con HTTPS. `localhost` y `127.0.0.1` sirven para pruebas en el mismo dispositivo, no para conectar un teléfono al servidor del computador.
+
+## Prueba local
+
+Desde `winStock/`, inicia Django con `python manage.py runserver` y abre `http://localhost:8000/` o `http://127.0.0.1:8000/`. En Edge/Chrome, revisa **DevTools → Application → Manifest** y **Service Workers**. Para probar el fallback offline, espera a que el Service Worker esté activo, activa **Network → Offline** y recarga una página.
+
+El botón no aparece si el navegador no ofrece `beforeinstallprompt` o si la aplicación ya está instalada. En Edge, revisa `edge://apps` para comprobar si WinStock ya está instalada en el perfil.
+
+## Producción y caché
+
+- Publica el sitio con HTTPS, define `DEBUG=False` y configura `ALLOWED_HOSTS` con el dominio publicado.
+- Ejecuta `python manage.py collectstatic` y configura el servidor/plataforma para servir `STATIC_ROOT` bajo `/static/`.
+- Al cambiar la lista de recursos precargados, incrementa `CACHE_NAME` en `winStock/static/service-worker.js` para invalidar la caché anterior.
