@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'apps.funcionarios',
     'apps.insumos',
     'apps.reportes',
-    'apps.alimentos',
     'apps.lotes_ganado',
     'apps.raciones',
 ]

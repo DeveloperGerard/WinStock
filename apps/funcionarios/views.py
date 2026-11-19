@@ -13,14 +13,14 @@ def inicio(request):
         return render(request,"base.html")  #! <--- que renderizamos aqui??!?!
     return redirect("funcionarios:iniciarSesion")
 
-
+"""
 def registro(request):
     form = RegistroForm(request.POST or None)
     if form.is_valid():
         login(request, form.save())
         return redirect("funcionarios:inicio")
     return render(request, "forms/regfunc.html", {"form": form})
-
+"""
 def iniciarSesion(request):
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)

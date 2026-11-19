@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -5,6 +6,7 @@ from .forms import AlimentoForm
 from .models import Alimento
 
 
+@login_required(login_url="funcionarios:iniciarSesion")
 def crearalimentos(request):
     form = AlimentoForm(
         data=request.POST if request.method == "POST" else None
@@ -21,11 +23,13 @@ def crearalimentos(request):
     )
 
 
+@login_required(login_url="funcionarios:iniciarSesion")
 def Editaralimentos(request):
     alimentos = Alimento.objects.order_by("nombre")
     return render(request, "alimentos/editar_alimentos.html", {"alimentos": alimentos})
 
 
+@login_required(login_url="funcionarios:iniciarSesion")
 @require_POST
 def desabilitar_alimentos(request, alimento_id):
     alimento = get_object_or_404(Alimento, pk=alimento_id)
@@ -35,6 +39,7 @@ def desabilitar_alimentos(request, alimento_id):
     return redirect("alimentos:editar_alimentos")
 
 
+@login_required(login_url="funcionarios:iniciarSesion")
 def modificar_alimentos(request, alimento_id):
     alimento = get_object_or_404(Alimento, pk=alimento_id)
     form = AlimentoForm(
@@ -52,6 +57,7 @@ def modificar_alimentos(request, alimento_id):
     )
 
 
+@login_required(login_url="funcionarios:iniciarSesion")
 def quedastock(request):
     alimentos = Alimento.objects.filter(estado=True).order_by("nombre")
     return render(request, "alimentos/quedastock.html", {"alimentos": alimentos})

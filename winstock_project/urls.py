@@ -16,11 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from apps.alimentos import views as alimentos_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', alimentos_views.crearalimentos, name='inicio_alimentos'),
     path('',include("apps.funcionarios.urls")),
     path('insumos/',include("apps.insumos.urls")),
     path('reportes/',include("apps.reportes.urls")),
