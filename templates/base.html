@@ -12,14 +12,14 @@
   <aside>
     <h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1>
     <nav>
-      <a href="">Resumen</a>
-      <a href="">Raciones</a>
-      <a href="{% url 'alimentos:crearalimentos' %}">Alimentos</a>
+      <a href="#">Resumen</a>
+      <a href="#">Raciones</a>
+      <a href="{% url 'alimentos:crearalimentos' %}" class="{% if request.resolver_match.namespace == 'alimentos' %}on{% endif %}">Alimentos</a>
       <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
-      <a href="" >Lotes</a>
-      <a href="" >Reportes</a>
+      <a href="{% url 'ganado:lotes' %}" class="{% if request.resolver_match.namespace == 'ganado' %}on{% endif %}" >Lotes</a>
+      <!-- <a href="" >Reportes</a> -->
       {% if request.user.rol.nombre == 'adm' %}
-        <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
+        <a href="{% url 'funcionarios:cuentas' %}" class="{% if request.resolver_match.namespace == 'cuentas' %}on{% endif %}">Cuentas</a>
 
       {% endif %}
 

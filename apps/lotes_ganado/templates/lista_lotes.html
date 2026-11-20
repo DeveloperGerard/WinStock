@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lotes{% endblock %}
+{% block page_title %}Lotes{% endblock %}
+{% block extra_head %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'insumos.css' %}">
+	<link rel="stylesheet" href="{% static 'crear_insumo.css' %}">
+	<link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="insumos-page">
+	<div class="insumos-heading">
+		<div>
+			<h2>Lotes</h2>
+			<p>Consulta y administra los lotes de ganado.</p>
+		</div>
+		<a class="btn dark" href="{% url 'ganado:crear_lote' %}">+ Nuevo lote</a>
+	</div>
+
+	<form class="insumos-filter" method="get">
+		<div class="insumos-filter__field registro-insumo__field">
+			<label for="filtro-q">Buscar por nombre</label>
+			<input id="filtro-q" type="search" name="q" value="{{ q }}" placeholder="Nombre del lote">
+		</div>
+		<div class="insumos-filter__field">
+			<label for="filtro-estado">Estado</label>
+			<select id="filtro-estado" name="estado">
+				<option value=""{% if estado == '' %} selected{% endif %}>Todos</option>
+				<option value="activos"{% if estado == 'activos' %} selected{% endif %}>Activos</option>
+				<option value="inactivos"{% if estado == 'inactivos' %} selected{% endif %}>Inactivos</option>
+			</select>
+		</div>
+		<button class="btn" type="submit">Filtrar</button>
+	</form>
+
+	<div class="insumos-table-wrap">
+		<table class="insumos-table">
+			<thead>
+				<tr>
+					<th scope="col">Nombre</th>
+					<th scope="col" style="text-align: right;">Cantidad de animales</th>
+					<th scope="col">Estado</th>
+					<th scope="col">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for lote in lotes %}
+				<tr{% if not lote.activo %} style="color: var(--mut);"{% endif %}>
+					<td>
+						{% if lote.nombre %}
+							{{ lote.nombre }}
+						{% else %}
+							<span style="color: var(--mut);">(sin nombre)</span>
+						{% endif %}
+					</td>
+					<td style="text-align: right;">{{ lote.cantidad }}</td>
+					<td>
+						{% if lote.activo %}
+							<span class="alimentos-status alimentos-status-active">Activo</span>
+						{% else %}
+							<span class="alimentos-status alimentos-status-inactive">Deshabilitado</span>
+						{% endif %}
+					</td>
+					<td class="insumos-actions">
+						<a class="btn" href="{% url 'ganado:editar_lote' lote.uuid %}">Editar</a>
+						<form class="alimentos-inline-form" method="post" action="{% url 'ganado:cambiar_estado_lote' lote.uuid %}">
+							{% csrf_token %}
+							<button class="btn" type="submit">{% if lote.activo %}Deshabilitar{% else %}Habilitar{% endif %}</button>
+						</form>
+						<a class="btn" href="{% url 'ganado:eliminar_lote' lote.uuid %}">Eliminar</a>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td class="insumos-empty" colspan="4">No hay lotes que coincidan. Cambia el filtro o crea uno nuevo.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+{% endblock %}
