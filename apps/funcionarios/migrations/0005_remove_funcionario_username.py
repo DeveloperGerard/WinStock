@@ -9,9 +9,4 @@ class Migration(migrations.Migration):
         ('funcionarios', '0004_remove_funcionario_public_id_alter_funcionario_rol'),
     ]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='funcionario',
-            name='username',
-        ),
-    ]
+    operations = []

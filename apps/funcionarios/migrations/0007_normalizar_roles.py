@@ -48,7 +48,7 @@ def restaurar_roles_antiguos(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("funcionarios", "0006_merge_20261119_1050"),
+        ("funcionarios", "0006_alter_funcionario_rol"),
     ]
 
     operations = [

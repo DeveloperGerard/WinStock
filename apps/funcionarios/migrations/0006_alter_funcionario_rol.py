@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('funcionarios', '0005_remove_funcionario_username'),
+        ('funcionarios', '0006_merge_20261119_1050'),
     ]
 
     operations = [
