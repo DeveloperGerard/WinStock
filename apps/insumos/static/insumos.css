@@ -1,0 +1,137 @@
+.insumos-page {
+    margin-inline: calc(-1 * clamp(20px, 8vw, 155px));
+    padding-inline: clamp(20px, 2vw, 32px);
+}
+
+.insumos-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.insumos-heading p {
+    color: var(--mut);
+    margin-top: 6px;
+}
+
+.insumos-toolbar {
+    margin-bottom: 30px;
+}
+
+.insumos-filter {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.insumos-filter__field {
+    display: grid;
+    gap: 6px;
+}
+
+.insumos-filter select {
+    min-width: 220px;
+    padding: 10px 12px;
+    border: 1px solid var(--bd);
+    border-radius: 4px;
+    background: #fff;
+    font: inherit;
+}
+
+.insumos-filter .btn {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.insumos-filter__error {
+    color: #9e2b2b;
+}
+
+.insumos-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+}
+
+.insumos-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.insumos-table th,
+.insumos-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef0ec;
+}
+
+.insumos-table th {
+    color: var(--mut);
+    font-size: 12px;
+    font-weight: 700;
+    background: #fcfcfa;
+}
+
+.insumos-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.insumos-actions {
+    white-space: nowrap;
+}
+
+.insumos-actions .btn {
+    padding: 10px 12px;
+    margin-right: 4px;
+}
+
+.insumo-delete-confirmation {
+    max-width: 640px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+}
+
+.insumo-delete-confirmation__warning {
+    margin: 20px 0;
+    padding: 14px;
+    background: #fff8e5;
+    border-left: 4px solid #c58b16;
+}
+
+.insumo-delete-confirmation__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.insumo-delete-confirmation__submit {
+    color: #fff;
+    background: #9e2b2b;
+    border-color: #9e2b2b;
+    font: inherit;
+    cursor: pointer;
+}
+
+.insumos-empty {
+    padding: 28px 16px !important;
+    text-align: center;
+    color: var(--mut);
+}
+
+@media (max-width: 700px) {
+    .insumos-heading {
+        align-items: flex-start;
+    }
+
+    .insumos-heading .tag {
+        display: none;
+    }
+}

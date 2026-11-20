@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | WinStock{% endblock %}
+{% block page_title %}Lotes{% endblock %}
+{% block extra_head %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'crear_insumo.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="registro-insumo">
+	<div class="registro-insumo__intro">
+		<div>
+			<h2>{{ titulo }}</h2>
+			<p>Completa los datos del lote de ganado.</p>
+		</div>
+	</div>
+
+	<form class="registro-insumo__form" method="post">
+		{% csrf_token %}
+		{{ form.non_field_errors }}
+
+		<div class="registro-insumo__fields">
+			<div class="registro-insumo__field{% if form.nombre.errors %} registro-insumo__field--error{% endif %}">
+				<label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+				<input type="text" name="{{ form.nombre.html_name }}" id="{{ form.nombre.id_for_label }}" value="{{ form.nombre.value|default_if_none:'' }}" maxlength="100" autofocus>
+				{% for error in form.nombre.errors %}
+					<small class="registro-insumo__error">{{ error }}</small>
+				{% endfor %}
+			</div>
+
+			<div class="registro-insumo__field{% if form.cantidad.errors %} registro-insumo__field--error{% endif %}">
+				<label for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label>
+				<input type="number" name="{{ form.cantidad.html_name }}" id="{{ form.cantidad.id_for_label }}" value="{{ form.cantidad.value|default_if_none:'' }}" min="1" required>
+				{% for error in form.cantidad.errors %}
+					<small class="registro-insumo__error">{{ error }}</small>
+				{% endfor %}
+			</div>
+
+			<div>
+				<label for="{{ form.activo.id_for_label }}">{{ form.activo.label }}</label><br>
+				{{ form.activo }}
+				{% for error in form.activo.errors %}
+					<small class="registro-insumo__error">{{ error }}</small>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="registro-insumo__actions">
+			<a class="btn" href="{% url 'ganado:lotes' %}">Cancelar</a>
+			<button class="registro-insumo__submit" type="submit">Guardar lote</button>
+		</div>
+	</form>
+</section>
+{% endblock %}

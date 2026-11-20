@@ -5,7 +5,6 @@ app_name = "funcionarios"
 
 urlpatterns = [
     path('', views.inicio ,name="inicio"),
-    path('registro/',views.registro,name="registro"),
     path('iniciarSesion/',views.iniciarSesion,name="iniciarSesion")  ,
     path('cerrarSesion/',views.cerrarSesion,name="cerrarSesion"),
     path('cuentas/',views.cuentas, name="cuentas"),
@@ -13,3 +12,6 @@ urlpatterns = [
     path('desabilitarFuncionario/<uuid:uuid>/', views.desabilitarFuncionario, name="desabilitarFuncionario"),
     path('habilitarFuncionario/<uuid:uuid>/', views.habilitarFuncionario, name="habilitarFuncionario")
 ]
+"""
+ path('registro/',views.registro,name="registro"),
+"""

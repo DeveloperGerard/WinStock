@@ -37,12 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'apps.alimentos',
+    'apps.alimentos',
     'apps.funcionarios',
-    #'apps.insumos',
-    #'apps.lotes_ganado',
-    #'apps.raciones',
-      #'apps.alimentos',
+    'apps.insumos',
+    'apps.reportes',
+    'apps.lotes_ganado',
+    'apps.raciones',
 ]
 
 MIDDLEWARE = [
@@ -89,6 +89,7 @@ DATABASES = {
     }
 }
 AUTH_USER_MODEL = "funcionarios.Funcionario"
+LOGIN_URL = "funcionarios:iniciarSesion"
 
 
 

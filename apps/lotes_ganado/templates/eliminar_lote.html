@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar lote | WinStock{% endblock %}
+{% block page_title %}Lotes{% endblock %}
+{% block extra_head %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'insumos.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="insumo-delete-confirmation">
+	<h2>Eliminar lote</h2>
+	<p>¿Confirmas que quieres eliminar el lote <strong>{{ lote.nombre|default:"(sin nombre)" }}</strong>, con {{ lote.cantidad }} animales?</p>
+	<p class="insumo-delete-confirmation__warning" role="alert">
+		Esta acción no se puede deshacer. Si solo quieres ocultar el lote, puedes deshabilitarlo en lugar de eliminarlo.
+	</p>
+
+	<form method="post">
+		{% csrf_token %}
+		<div class="insumo-delete-confirmation__actions">
+			<button class="btn insumo-delete-confirmation__submit" type="submit">Sí, eliminar</button>
+			<a class="btn" href="{% url 'ganado:lotes' %}">Cancelar</a>
+		</div>
+	</form>
+</section>
+{% endblock %}
