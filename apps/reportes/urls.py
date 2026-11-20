@@ -1,6 +1,9 @@
-from django.contrib import admin
-from django.urls import path,include
+from django.urls import path
+
 from . import views
+
+app_name = "reportes"
+
 urlpatterns = [
-    path('',views.prueba),
+    path("", views.index, name="index"),
 ]

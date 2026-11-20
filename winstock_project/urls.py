@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from . import pwa_views
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('service-worker.js', pwa_views.service_worker, name='service_worker'),
     path('',include("apps.funcionarios.urls")),
     path('insumos/',include("apps.insumos.urls")),
     path('reportes/',include("apps.reportes.urls")),

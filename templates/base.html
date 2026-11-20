@@ -5,10 +5,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %} | WinStock{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'base.css' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
-  {% block extra_links %}{% endblock %}
+  <meta name="theme-color" content="#173D30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
+  <title>{% block title %}WinStock{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 
 <body>
@@ -24,9 +27,9 @@
       <a href="{% url 'alimentos:crearalimentos' %}" class="{% if request.resolver_match.namespace == 'alimentos' %}on{% endif %}">Alimentos</a>
       <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
       <a href="{% url 'ganado:lotes' %}" class="{% if request.resolver_match.namespace == 'ganado' %}on{% endif %}" >Lotes</a>
-      <!-- <a href="" >Reportes</a> -->
       {% if request.user.rol.nombre == 'adm' %}
-        <a href="{% url 'funcionarios:cuentas' %}" class="{% if request.resolver_match.namespace == 'cuentas' %}on{% endif %}">Cuentas</a>
+        <a href="{% url 'reportes:index' %}" class="{% if request.resolver_match.namespace == 'reportes' %}on{% endif %}">Reportes</a>
+        <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
 
       {% endif %}
     </nav>
@@ -34,14 +37,98 @@
 
   <header>
     <b>{% block page_title %}Resumen{% endblock %}</b>
-    <details>
-      <summary> Mi cuenta </summary>
-      <div class="menu"><a href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
-    </details>
+    <div class="pwa-actions">
+      <button id="install-app" class="btn dark install-app" type="button" hidden style="display: none;">Instalar WinStock</button>
+      <span id="install-ios-help" class="install-ios-help" hidden>En iPhone/iPad: Compartir → Añadir a pantalla de inicio.</span>
+      <span id="install-status" class="install-status" role="status" aria-live="polite" hidden></span>
+      <details>
+        <summary> Mi cuenta </summary>
+        <div class="menu"><a href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
+      </details>
+    </div>
   </header>
 
   <main>{% block content %}{% endblock %}</main>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
+  <script>
+    // Registro PWA: el Service Worker solo almacena recursos estáticos.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{% url 'service_worker' %}")
+          .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
+      });
+    }
+
+    // El navegador controla cuándo la aplicación puede instalarse.
+    let installPrompt = null;
+    const installButton = document.getElementById('install-app');
+    const iosInstallHelp = document.getElementById('install-ios-help');
+    const installStatus = document.getElementById('install-status');
+    const setInstallButtonVisible = (visible) => {
+      if (!installButton) return;
+      installButton.hidden = !visible;
+      installButton.style.display = visible ? '' : 'none';
+    };
+    const setInstallStatus = (message) => {
+      if (!installStatus) return;
+      installStatus.textContent = message;
+      installStatus.hidden = !message;
+    };
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
+      navigator.standalone === true;
+
+    if (isIOS && !isInstalled && iosInstallHelp) {
+      iosInstallHelp.hidden = false;
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      setInstallButtonVisible(true);
+      setInstallStatus('');
+    });
+
+    if (installButton) {
+      installButton.addEventListener('click', async () => {
+        if (!installPrompt) {
+          setInstallStatus('Edge no ofreció la instalación. Abre el menú ⋯ y busca Aplicaciones.');
+          return;
+        }
+
+        const promptEvent = installPrompt;
+        installPrompt = null;
+        installButton.disabled = true;
+        setInstallStatus('Esperando la confirmación de Edge…');
+        try {
+          await promptEvent.prompt();
+          const { outcome } = await promptEvent.userChoice;
+          if (outcome === 'accepted') {
+            setInstallStatus('Instalación aceptada. Busca WinStock en el menú Inicio.');
+          } else {
+            setInstallStatus('Instalación cancelada. Puedes instalarla desde el menú ⋯ de Edge.');
+          }
+        } catch (error) {
+          console.error('No se pudo abrir el diálogo de instalación:', error);
+          setInstallStatus('Edge no pudo abrir el diálogo. Prueba desde el menú ⋯ → Aplicaciones.');
+        } finally {
+          installButton.disabled = false;
+          setInstallButtonVisible(false);
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      setInstallButtonVisible(false);
+      if (iosInstallHelp) iosInstallHelp.hidden = true;
+      setInstallStatus('WinStock se instaló correctamente. Búscala en el menú Inicio.');
+      installPrompt = null;
+    });
+  </script>
+
+
+
+
 </body>
 
 </html>

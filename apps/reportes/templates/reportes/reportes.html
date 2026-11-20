@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reportes | WinStock{% endblock %}
+{% block page_title %}Reportes{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'reportes/reportes.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="reportes-page">
+  <div class="reportes-heading">
+    <div>
+      <h2>Reporte actual del predio</h2>
+      <p>Generado el {{ fecha_generacion|date:"d/m/Y H:i" }}</p>
+    </div>
+    <div class="reportes-actions">
+      <a class="btn" href="{% url 'reportes:index' %}">Limpiar filtros</a>
+      <a class="btn dark" href="{% url 'reportes:index' %}?alimento_q={{ filtro_alimento|urlencode }}&amp;funcionario_q={{ filtro_funcionario|urlencode }}&amp;insumo_q={{ filtro_insumo|urlencode }}&amp;categoria={{ categoria_seleccionada|urlencode }}&amp;export=xlsx">Exportar Excel</a>
+    </div>
+  </div>
+
+  <form class="reportes-filter" method="get">
+    <div class="reportes-filter__search">
+      <label for="reporte-alimento">Buscar alimento</label>
+      <input id="reporte-alimento" type="search" name="alimento_q" value="{{ filtro_alimento }}" placeholder="Nombre del alimento">
+    </div>
+    <div class="reportes-filter__search">
+      <label for="reporte-funcionario">Buscar funcionario</label>
+      <input id="reporte-funcionario" type="search" name="funcionario_q" value="{{ filtro_funcionario }}" placeholder="Nombre, RUT o correo">
+    </div>
+    <div class="reportes-filter__search">
+      <label for="reporte-insumo">Buscar insumo</label>
+      <input id="reporte-insumo" type="search" name="insumo_q" value="{{ filtro_insumo }}" placeholder="Nombre o categoría">
+    </div>
+    <div class="reportes-filter__category">
+      <label for="reporte-categoria">Categoría de insumos</label>
+      <select id="reporte-categoria" name="categoria">
+        <option value="">Todas las categorías</option>
+        {% for categoria in categorias %}
+          <option value="{{ categoria.pk }}" {% if categoria_seleccionada == categoria.pk|stringformat:"s" %}selected{% endif %}>
+            {{ categoria.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn dark" type="submit">Filtrar</button>
+  </form>
+
+  <div class="reportes-cards">
+    <article class="reportes-card">
+      <span>Alimentos activos</span>
+      <strong>{{ alimentos|length }}</strong>
+      <small>Disponibles en la gestión actual</small>
+    </article>
+    <article class="reportes-card">
+      <span>Funcionarios activos</span>
+      <strong>{{ funcionarios|length }}</strong>
+      <small>Cuentas habilitadas</small>
+    </article>
+    <article class="reportes-card">
+      <span>Insumos registrados</span>
+      <strong>{{ insumos|length }}</strong>
+      <small>{{ insumos_sin_stock }} sin stock</small>
+    </article>
+  </div>
+
+  <section class="reportes-section">
+    <div class="reportes-section-heading">
+      <div>
+        <h3>Alimentos actuales</h3>
+        <p>Alimentos activos registrados en el sistema.</p>
+      </div>
+      <span class="reportes-count">{{ alimentos|length }}</span>
+    </div>
+    <div class="reportes-table-wrap">
+      <table class="reportes-table">
+        <thead><tr><th>Nombre</th><th>Stock registrado</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for alimento in alimentos %}
+            <tr>
+              <td>{{ alimento.nombre }}</td>
+              <td>{{ alimento.stock_registrado }}</td>
+              <td><span class="reportes-status active">Activo</span></td>
+            </tr>
+          {% empty %}
+            <tr><td class="reportes-empty" colspan="3">No hay alimentos activos que coincidan con los filtros.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="reportes-section">
+    <div class="reportes-section-heading">
+      <div>
+        <h3>Funcionarios activos</h3>
+        <p>Cuentas habilitadas y su información principal.</p>
+      </div>
+      <span class="reportes-count">{{ funcionarios|length }}</span>
+    </div>
+    <div class="reportes-table-wrap">
+      <table class="reportes-table">
+        <thead><tr><th>Nombre completo</th><th>RUT</th><th>Correo</th><th>Rol</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for funcionario in funcionarios %}
+            <tr>
+              <td>{{ funcionario.full_name }}</td>
+              <td>{{ funcionario.rut }}</td>
+              <td>{{ funcionario.email }}</td>
+              <td>{% if funcionario.rol %}{{ funcionario.rol }}{% else %}Sin rol{% endif %}</td>
+              <td><span class="reportes-status active">Activo</span></td>
+            </tr>
+          {% empty %}
+            <tr><td class="reportes-empty" colspan="5">No hay funcionarios activos que coincidan con los filtros.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="reportes-section">
+    <div class="reportes-section-heading">
+      <div>
+        <h3>Insumos actuales</h3>
+        <p>Inventario disponible de maquinaria y sus categorías.</p>
+      </div>
+      <span class="reportes-count">{{ insumos|length }}</span>
+    </div>
+    <div class="reportes-table-wrap">
+      <table class="reportes-table">
+        <thead><tr><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Unidad</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for insumo in insumos %}
+            <tr>
+              <td>{{ insumo.nombre }}</td>
+              <td>{% if insumo.categoria %}{{ insumo.categoria.nombre }}{% else %}Sin categoría{% endif %}</td>
+              <td>{{ insumo.cantidad }}</td>
+              <td>{{ insumo.get_unidad_display }}</td>
+              <td>
+                {% if insumo.cantidad == 0 %}
+                  <span class="reportes-status zero">Sin stock</span>
+                {% else %}
+                  <span class="reportes-status active">Disponible</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td class="reportes-empty" colspan="5">No hay insumos que coincidan con los filtros.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+{% endblock %}

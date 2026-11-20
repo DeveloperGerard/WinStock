@@ -56,3 +56,19 @@ class CrearFuncionarioForm(RegistroForm):
     class Meta(RegistroForm.Meta):
         fields = RegistroForm.Meta.fields + ("rol",)
         labels = {**RegistroForm.Meta.labels, "rol": "Rol"}
+
+
+class EditarFuncionarioForm(forms.ModelForm):
+    """Edición de datos del funcionario sin modificar su contraseña o permisos técnicos."""
+
+    class Meta:
+        model = Funcionario
+        fields = ("rut", "first_name", "last_name", "email", "phone_number", "rol")
+        labels = {
+            "rut": "RUT",
+            "first_name": "Nombres",
+            "last_name": "Apellidos",
+            "email": "Correo electrónico",
+            "phone_number": "Teléfono",
+            "rol": "Rol",
+        }

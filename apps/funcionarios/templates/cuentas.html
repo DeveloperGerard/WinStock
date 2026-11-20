@@ -28,7 +28,7 @@
           <td><span class="account-status {% if funcionario.is_active %}active{% else %}inactive{% endif %}">{% if funcionario.is_active %}Activo{% else %}Deshabilitado{% endif %}</span></td>
           
           <td class="account-actions">
-            <a class="edit">Editar</a>
+            <a class="edit" href="{% url 'funcionarios:editarFuncionario' uuid=funcionario.uuid %}">Editar</a>
             {% if funcionario.is_active %}
               <form class="account-disable-form" method="post" action="{% url 'funcionarios:desabilitarFuncionario' uuid=funcionario.uuid %}">
                 {% csrf_token %}
