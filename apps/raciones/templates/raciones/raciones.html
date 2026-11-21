@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Raciones | WinStock{% endblock %}
+{% block page_title %}Raciones{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'raciones/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="raciones-page">
+  <div class="raciones-heading">
+    <div>
+      <h2>Registrar ración diaria</h2>
+      <p>Registra los alimentos utilizados por lote y turno. El stock se descuenta automáticamente al guardar.</p>
+    </div>
+    <span class="raciones-info">Descuento automático de inventario</span>
+  </div>
+
+  {% if messages %}
+    <div class="raciones-messages">
+      {% for message in messages %}
+        <div class="raciones-message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="raciones-card">
+    <form method="post" id="racion-form" class="raciones-form">
+      {% csrf_token %}
+      <div class="raciones-section-title"><h3>Datos de la ración</h3></div>
+      {% if form.non_field_errors %}<div class="raciones-errors">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="raciones-fields">
+        {% for field in form %}
+          <div class="raciones-field">
+            {{ field.label_tag }}{{ field }}
+            {% for error in field.errors %}<small class="raciones-errors">{{ error }}</small>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="raciones-section-title raciones-detail-title">
+        <div><h3>Alimentos de la ración</h3><p>Indica cuánto se utilizará de cada alimento.</p></div>
+        <button type="button" class="raciones-button raciones-button-light" id="agregar-detalle">+ Agregar alimento</button>
+      </div>
+
+      {{ formset.management_form }}
+      {% if formset.non_form_errors %}<div class="raciones-errors">{{ formset.non_form_errors }}</div>{% endif %}
+      <div id="detalles-container">
+        {% for detalle in formset %}
+          <div class="raciones-detail-row">
+            {% for hidden in detalle.hidden_fields %}{{ hidden }}{% endfor %}
+            <div class="raciones-field">{{ detalle.alimento.label_tag }}{{ detalle.alimento }}{% for error in detalle.alimento.errors %}<small class="raciones-errors">{{ error }}</small>{% endfor %}</div>
+            <div class="raciones-field">{{ detalle.kg.label_tag }}{{ detalle.kg }}{% for error in detalle.kg.errors %}<small class="raciones-errors">{{ error }}</small>{% endfor %}</div>
+            {% if detalle.DELETE %}<label class="raciones-delete">{{ detalle.DELETE }} Quitar</label>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="raciones-form-actions"><button class="raciones-button raciones-button-primary" type="submit">Guardar ración y descontar stock</button></div>
+    </form>
+  </div>
+
+  <div class="raciones-section-title raciones-history-title"><h3>Últimas raciones registradas</h3></div>
+  <div class="raciones-table-wrap">
+    <table class="raciones-table">
+      <thead><tr><th>Fecha</th><th>Turno</th><th>Lote</th><th>Registrado por</th></tr></thead>
+      <tbody>
+        {% for racion in ultimas_raciones %}
+          <tr><td>{{ racion.fecha|date:"d/m/Y" }}</td><td>{{ racion.turno }}</td><td>{{ racion.lote_id.nombre }}</td><td>{{ racion.usuario_id.first_name }} {{ racion.usuario_id.last_name }}</td></tr>
+        {% empty %}<tr><td colspan="4" class="raciones-empty">Todavía no hay raciones registradas.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<template id="detalle-empty-form">
+  <div class="raciones-detail-row">
+    <div class="raciones-field"><label for="id_detalles-__prefix__-alimento">Alimento</label>{{ formset.empty_form.alimento }}</div>
+    <div class="raciones-field"><label for="id_detalles-__prefix__-kg">Cantidad a utilizar</label>{{ formset.empty_form.kg }}</div>
+    <label class="raciones-delete"><input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE"> Quitar</label>
+  </div>
+</template>
+<script>
+(function () {
+  const container = document.getElementById('detalles-container');
+  const addButton = document.getElementById('agregar-detalle');
+  const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+  const template = document.getElementById('detalle-empty-form');
+  if (!container || !addButton || !totalForms || !template) return;
+  addButton.addEventListener('click', function () {
+    const index = Number(totalForms.value);
+    container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
+    totalForms.value = index + 1;
+  });
+})();
+</script>
+{% endblock %}

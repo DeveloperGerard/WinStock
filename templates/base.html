@@ -17,7 +17,7 @@
     <h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1>
     <nav>
       <a href="#">Resumen</a>
-      <a href="#">Raciones</a>
+      <a href="{% url 'raciones:raciones' %}">Raciones</a>
       <a href="{% url 'alimentos:crearalimentos' %}" class="{% if request.resolver_match.namespace == 'alimentos' %}on{% endif %}">Alimentos</a>
       <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
       <a href="{% url 'ganado:lotes' %}" class="{% if request.resolver_match.namespace == 'ganado' %}on{% endif %}" >Lotes</a>
