@@ -10,22 +10,60 @@
   <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
   <title>Iniciar sesión · WinStock</title>
   <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}?v=2">
+  <style>
+    #login-offline-notice {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid #d5a900;
+      border-radius: 6px;
+      background: #fff4c2;
+      color: #493d12;
+    }
+    #login-offline-notice[hidden] { display: none; }
+    body.modo-offline [data-solo-online] {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
   <main class="auth">
     <header><h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1></header>
+    <div id="login-offline-notice" role="status" aria-live="polite" hidden>
+      Sin conexión: iniciar sesión requiere Internet.
+    </div>
 
-    <form method="post">
+    <form id="login-form" method="post" data-solo-online>
       {% csrf_token %}
       <h2>Iniciar sesión</h2>
       {{ form.non_field_errors }}
       {% for f in form %}
       <label>{{ f.label }}{{ f }}{% for e in f.errors %}<small class="err">{{ e }}</small>{% endfor %}</label>
       {% endfor %}
-      <button class="btn">Iniciar sesion</button>
+      <button class="btn" type="submit" data-solo-online>Iniciar sesion</button>
     </form>
   </main>
   <script>
+    const loginForm = document.getElementById('login-form');
+    const loginOfflineNotice = document.getElementById('login-offline-notice');
+    const updateLoginConnectionState = () => {
+      const offline = !navigator.onLine;
+      document.body.classList.toggle('modo-offline', offline);
+      loginOfflineNotice.hidden = !offline;
+      loginForm.inert = offline;
+      loginForm.querySelectorAll('button[data-solo-online]').forEach((button) => {
+        button.disabled = offline;
+        button.setAttribute('aria-disabled', String(offline));
+      });
+    };
+
+    updateLoginConnectionState();
+    window.addEventListener('online', updateLoginConnectionState);
+    window.addEventListener('offline', updateLoginConnectionState);
+    loginForm.addEventListener('submit', (event) => {
+      if (!navigator.onLine) event.preventDefault();
+    });
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register("{% url 'service_worker' %}")

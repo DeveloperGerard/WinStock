@@ -41,18 +41,107 @@
       <span id="install-status" class="install-status" role="status" aria-live="polite" hidden></span>
       <details>
         <summary> Mi cuenta </summary>
-        <div class="menu"><a href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
+        <div class="menu"><a id="logout-link" href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
       </details>
     </div>
   </header>
 
-  <main>{% block content %}{% endblock %}</main>
+  <main>
+    <div id="offline-banner" class="offline-banner" role="status" aria-live="polite" hidden>
+      Sin conexión: estás viendo información guardada. No puedes agregar ni modificar datos.
+    </div>
+    {% block content %}{% endblock %}
+  </main>
   <script>
-    // Registro PWA: el Service Worker solo almacena recursos estáticos.
+    // Actualiza el aviso y bloquea acciones que necesitan conexión.
+    const offlineBanner = document.getElementById('offline-banner');
+    let wasOffline = !navigator.onLine;
+    const updateConnectionState = () => {
+      const offline = !navigator.onLine;
+      document.body.classList.toggle('modo-offline', offline);
+      if (offlineBanner) offlineBanner.hidden = !offline;
+
+      document.querySelectorAll('[data-solo-online]').forEach((element) => {
+        element.setAttribute('aria-disabled', String(offline));
+        element.toggleAttribute('inert', offline);
+      });
+
+      if (
+        wasOffline
+        && !offline
+        && document.querySelector('meta[name="winstock-offline-snapshot"]')
+      ) {
+        window.location.reload();
+      }
+      wasOffline = offline;
+    };
+
+    updateConnectionState();
+    window.addEventListener('online', updateConnectionState);
+    window.addEventListener('offline', updateConnectionState);
+
+    document.addEventListener('click', (event) => {
+      if (navigator.onLine || !(event.target instanceof Element)) return;
+      if (event.target.closest('[data-solo-online]')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    document.addEventListener('submit', (event) => {
+      if (
+        !navigator.onLine
+        && event.target instanceof HTMLFormElement
+        && event.target.matches('form[data-solo-online]')
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    // Registro PWA: el Service Worker conserva estáticos y páginas permitidas.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register("{% url 'service_worker' %}")
           .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
+      });
+    }
+
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink && navigator.serviceWorker) {
+      logoutLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        const destination = logoutLink.href;
+        const continueLogout = () => window.location.assign(destination);
+
+        navigator.serviceWorker.getRegistration()
+          .then((registration) => {
+            const worker = navigator.serviceWorker.controller
+              || (registration && registration.active);
+            if (!worker) {
+              continueLogout();
+              return;
+            }
+
+            const channel = new MessageChannel();
+            let timeoutId;
+            let finished = false;
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              window.clearTimeout(timeoutId);
+              channel.port1.close();
+              continueLogout();
+            };
+
+            channel.port1.onmessage = finish;
+            timeoutId = window.setTimeout(finish, 1000);
+            worker.postMessage({ type: 'CLEAR_PAGES' }, [channel.port2]);
+          })
+          .catch((error) => {
+            console.error('No se pudo borrar la caché antes de cerrar sesión:', error);
+            continueLogout();
+          });
       });
     }
 

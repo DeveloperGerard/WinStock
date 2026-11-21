@@ -1,7 +1,28 @@
-from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser
+from django.template.loader import render_to_string
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from .models import Alimento
+
+
+class AlimentosOfflineTemplateTests(SimpleTestCase):
+    def test_snapshot_sin_formulario_ni_token_csrf(self):
+        request = RequestFactory().get(
+            "/alimentos/",
+            {"offline_snapshot": "1"},
+        )
+        request.user = AnonymousUser()
+        html = render_to_string(
+            "alimentos/alimentos.html",
+            {"alimentos": [], "form": None},
+            request=request,
+        )
+
+        self.assertNotIn('class="alimentos-form"', html)
+        self.assertNotIn("csrfmiddlewaretoken", html)
+        self.assertIn("Alimentos registrados", html)
+        self.assertIn('name="winstock-offline-snapshot"', html)
 
 
 class AlimentosViewsTests(TestCase):

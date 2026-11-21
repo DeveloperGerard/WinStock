@@ -1,69 +1,143 @@
-//Donde se guarda la cache:
-const CACHE_NAME = 'winstock-static-v4';
-//Direcion de pagina sin conexion
+const STATIC_CACHE_NAME = 'winstock-static-v5';
+const PAGES_CACHE_NAME = 'winstock-pages-v1';
 const OFFLINE_URL = '/static/pwa/offline.html';
-//Lista de cosas que se guardan en la cache antes de quedar sin conexion
+const ALLOWED_PAGE_PATHS = new Set([
+  '/',
+  '/alimentos/',
+  '/alimentos/stock/'
+]);
+const CURRENT_CACHE_NAMES = new Set([STATIC_CACHE_NAME, PAGES_CACHE_NAME]);
 const STATIC_ASSETS = [
   OFFLINE_URL,
   '/static/style.css',
+  '/static/alimentos/alimentos.css',
   '/static/pwa/icon-192.png',
   '/static/pwa/icon-512.png'
 ];
 
-//Evento que se dispara una sola vez abre el cache--> guarda datos 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE_NAME)
       .then((cache) => cache.addAll(STATIC_ASSETS))
       .then(() => self.skipWaiting())
   );
 });
 
-//Empieza a trabajar --> Revisa cache --> Elimina cache desactualizada(basura)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys
+          .filter((key) => !CURRENT_CACHE_NAMES.has(key))
+          .map((key) => caches.delete(key))
       ))
       .then(() => self.clients.claim())
   );
 });
 
-//Trabajo diario 
-// if metho != get  (ignorar) ejem-->(post,formularios)
+self.addEventListener('message', (event) => {
+  if (!event.data || event.data.type !== 'CLEAR_PAGES') return;
+
+  event.waitUntil(
+    caches.delete(PAGES_CACHE_NAME).then(() => {
+      if (event.ports[0]) {
+        event.ports[0].postMessage({ type: 'PAGES_CLEARED' });
+      }
+    })
+  );
+});
+
+function isAllowedPage(url) {
+  return url.search === '' && ALLOWED_PAGE_PATHS.has(url.pathname);
+}
+
+function pageCacheKey(url) {
+  return new Request(new URL(url.pathname, url.origin));
+}
+
+async function offlineFallback(url, allowedPage) {
+  if (allowedPage) {
+    const pages = await caches.open(PAGES_CACHE_NAME);
+    const savedPage = await pages.match(pageCacheKey(url));
+    if (savedPage) return savedPage;
+  }
+
+  const staticCache = await caches.open(STATIC_CACHE_NAME);
+  const offlinePage = await staticCache.match(OFFLINE_URL);
+  if (offlinePage) return offlinePage;
+
+  return new Response('La página sin conexión no está disponible.', {
+    status: 503,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  });
+}
+
+async function saveAllowedPage(request, response, url) {
+  const pages = await caches.open(PAGES_CACHE_NAME);
+  let pageToSave = response.clone();
+
+  if (url.pathname === '/alimentos/') {
+    const snapshotUrl = new URL(request.url);
+    snapshotUrl.searchParams.set('offline_snapshot', '1');
+    pageToSave = await fetch(snapshotUrl, { credentials: 'same-origin' });
+    if (!pageToSave.ok || pageToSave.redirected) return;
+  }
+
+  await pages.put(pageCacheKey(url), pageToSave);
+}
+
+async function handleNavigation(request, event) {
+  const url = new URL(request.url);
+  const allowedPage = isAllowedPage(url);
+  let response;
+
+  try {
+    response = await fetch(request);
+  } catch (error) {
+    return offlineFallback(url, allowedPage);
+  }
+
+  if (response.redirected) return response;
+  if (!response.ok) {
+    return allowedPage ? offlineFallback(url, true) : response;
+  }
+
+  if (allowedPage) {
+    event.waitUntil(
+      saveAllowedPage(request, response, url).catch((error) => {
+        console.error('No se pudo guardar la página de consulta:', error);
+      })
+    );
+  }
+
+  return response;
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  //Va a internet a buscar la pagina --> si falla(no internet) --> (busca en cache)--> se muestra
-  // Las páginas dinámicas y los datos privados nunca se guardan en caché.
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL))
-    );
+    event.respondWith(handleNavigation(request, event));
     return;
   }
 
-  // Solo recursos estáticos: caché primero y red como alternativa.
-  //Mira lo guardado en la cache--> lo entrega de inmediatio sin internet
-  //Si no lo tiene--> va  a internet --> realiza una copia
-  //Entrega archivo original de la app
-
   if (url.pathname.startsWith('/static/')) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        });
-      })
+      caches.open(STATIC_CACHE_NAME).then((cache) =>
+        cache.match(request).then((cached) => {
+          if (cached) return cached;
+
+          return fetch(request).then((response) => {
+            if (response.ok) {
+              event.waitUntil(cache.put(request, response.clone()));
+            }
+            return response;
+          });
+        })
+      )
     );
   }
 });
