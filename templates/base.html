@@ -10,7 +10,7 @@
   <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
   <title>{% block title %}WinStock{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'base.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 
@@ -22,14 +22,14 @@
     </h1>
     
     <nav>
-      <a href="#">Resumen</a>
+      <a href="{% url 'funcionarios:inicio' %}" class="{% if request.resolver_match.namespace == 'funcionarios:inicio' %}on{% endif %}">Resumen</a>
       <a href="#">Raciones</a>
       <a href="{% url 'alimentos:crearalimentos' %}" class="{% if request.resolver_match.namespace == 'alimentos' %}on{% endif %}">Alimentos</a>
       <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
       <a href="{% url 'ganado:lotes' %}" class="{% if request.resolver_match.namespace == 'ganado' %}on{% endif %}" >Lotes</a>
       {% if request.user.rol.nombre == 'adm' %}
         <a href="{% url 'reportes:index' %}" class="{% if request.resolver_match.namespace == 'reportes' %}on{% endif %}">Reportes</a>
-        <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
+        <a href="{% url 'funcionarios:cuentas' %}">Cuentas</a>
 
       {% endif %}
     </nav>
