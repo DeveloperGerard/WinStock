@@ -1,17 +1,27 @@
-const STATIC_CACHE_NAME = 'winstock-static-v7';
-const PAGES_CACHE_NAME = 'winstock-pages-v3';
+const STATIC_CACHE_NAME = 'winstock-static-v8';
+const PAGES_CACHE_NAME = 'winstock-pages-v4';
 const OFFLINE_URL = '/static/pwa/offline.html';
-const SNAPSHOT_URL = '/alimentos/?offline_snapshot=1';
-const ALLOWED_PAGE_PATHS = new Set([
-  '/',
-  '/alimentos/',
-  '/alimentos/stock/'
-]);
+const SNAPSHOT_PAGES = [
+  ['/', '/alimentos/?offline_snapshot=1'],
+  ['/alimentos/', '/alimentos/?offline_snapshot=1'],
+  ['/alimentos/stock/', '/alimentos/stock/?offline_snapshot=1'],
+  ['/cuentas/', '/cuentas/?offline_snapshot=1'],
+  ['/insumos/', '/insumos/?offline_snapshot=1'],
+  ['/ganado/lotes/', '/ganado/lotes/?offline_snapshot=1'],
+  ['/raciones/', '/raciones/?offline_snapshot=1'],
+  ['/reportes/', '/reportes/?offline_snapshot=1']
+];
+const ALLOWED_PAGE_PATHS = new Set(SNAPSHOT_PAGES.map(([path]) => path));
 const CURRENT_CACHE_NAMES = new Set([STATIC_CACHE_NAME, PAGES_CACHE_NAME]);
 const STATIC_ASSETS = [
   OFFLINE_URL,
   '/static/style.css',
   '/static/alimentos/alimentos.css',
+  '/static/cuentas.css',
+  '/static/insumos.css',
+  '/static/crear_insumo.css',
+  '/static/raciones/style.css',
+  '/static/reportes/reportes.css',
   '/static/pwa/icon-192.png',
   '/static/pwa/icon-512.png'
 ];
@@ -69,7 +79,7 @@ self.addEventListener('message', (event) => {
     return;
   }
 
-  // La página (con sesión iniciada) pide guardar las 3 páginas de consulta,
+  // La página (con sesión iniciada) pide guardar las páginas de consulta,
   // así no hace falta haberlas visitado una por una antes de quedar offline.
   if (event.data.type === 'WARM_PAGES') {
     event.waitUntil(
@@ -85,11 +95,16 @@ self.addEventListener('message', (event) => {
 // ---------------------------------------------------------------------------
 
 function isAllowedPage(url) {
-  return url.search === '' && ALLOWED_PAGE_PATHS.has(url.pathname);
+  return url.search === '' && ALLOWED_PAGE_PATHS.has(canonicalPagePath(url.pathname));
+}
+
+function canonicalPagePath(path) {
+  const withSlash = path.endsWith('/') ? path : `${path}/`;
+  return ALLOWED_PAGE_PATHS.has(withSlash) ? withSlash : path;
 }
 
 function pageCacheKey(url) {
-  return new Request(new URL(url.pathname, url.origin));
+  return new Request(new URL(canonicalPagePath(url.pathname), url.origin));
 }
 
 // Una redirección en una navegación llega como "opaqueredirect" (status 0,
@@ -116,21 +131,21 @@ async function offlineFallback(url, allowedPage) {
   });
 }
 
-// "/" y "/alimentos/" se guardan con la variante de lectura (sin formulario
-// ni token CSRF). "/alimentos/stock/" se guarda tal como llega.
-async function fetchPageToStore(url, response) {
-  if (url.pathname === '/' || url.pathname === '/alimentos/') {
-    const snapshot = await fetch(new URL(SNAPSHOT_URL, url.origin), {
-      credentials: 'same-origin'
-    });
-    if (!snapshot.ok || isRedirect(snapshot)) return null;
-    return snapshot;
-  }
-  return response.clone();
+// Cada ruta se guarda con su variante de lectura, sin formularios ni tokens CSRF.
+async function fetchPageToStore(url) {
+  const snapshotPage = SNAPSHOT_PAGES.find(
+    ([path]) => path === canonicalPagePath(url.pathname)
+  );
+  if (!snapshotPage) return null;
+  const snapshot = await fetch(new URL(snapshotPage[1], url.origin), {
+    credentials: 'same-origin'
+  });
+  if (!snapshot.ok || isRedirect(snapshot)) return null;
+  return snapshot;
 }
 
 async function saveAllowedPage(response, url) {
-  const toStore = await fetchPageToStore(url, response);
+  const toStore = await fetchPageToStore(url);
   if (!toStore) return;
   const pages = await caches.open(PAGES_CACHE_NAME);
   await pages.put(pageCacheKey(url), toStore);
@@ -138,22 +153,20 @@ async function saveAllowedPage(response, url) {
 
 async function warmPages() {
   const pages = await caches.open(PAGES_CACHE_NAME);
-  const targets = [
-    ['/', SNAPSHOT_URL],
-    ['/alimentos/', SNAPSHOT_URL],
-    ['/alimentos/stock/', '/alimentos/stock/']
-  ];
-
-  for (const [key, source] of targets) {
-    const response = await fetch(new URL(source, self.location.origin), {
-      credentials: 'same-origin'
-    });
-    // Si redirige (sin sesión) o falla, no se guarda nada.
-    if (!response.ok || isRedirect(response)) continue;
-    await pages.put(
-      new Request(new URL(key, self.location.origin)),
-      response
-    );
+  for (const [key, source] of SNAPSHOT_PAGES) {
+    try {
+      const response = await fetch(new URL(source, self.location.origin), {
+        credentials: 'same-origin'
+      });
+      // Si redirige (sin sesión) o falla, no se guarda nada.
+      if (!response.ok || isRedirect(response)) continue;
+      await pages.put(
+        new Request(new URL(key, self.location.origin)),
+        response
+      );
+    } catch (error) {
+      console.warn(`No se pudo precalentar ${key}:`, error);
+    }
   }
 }
 

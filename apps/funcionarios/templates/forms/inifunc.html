@@ -12,14 +12,32 @@
   <link rel="stylesheet" href="{% static 'forms/inifunc.css' %}?v=2">
   <style>
     #login-offline-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
       margin-bottom: 16px;
-      padding: 12px;
-      border: 1px solid #d5a900;
-      border-radius: 6px;
-      background: #fff4c2;
+      padding: 16px;
+      border: 1px solid #ead18a;
+      border-left: 5px solid #c58a16;
+      border-radius: 12px;
+      background: linear-gradient(110deg, #fff8df, #fffdf6);
       color: #493d12;
+      box-shadow: 0 8px 24px #493d3010;
     }
-    #login-offline-notice[hidden] { display: none; }
+    #login-offline-notice[hidden] { display: none !important; }
+    .login-offline-icon {
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #f5e8bd;
+      color: #80530a;
+      font-weight: 800;
+    }
+    .login-offline-copy { display: grid; gap: 3px; line-height: 1.45; }
+    .login-offline-copy span { color: #685a37; font-size: 12px; }
     body.modo-offline [data-solo-online] {
       opacity: .5;
       cursor: not-allowed;
@@ -30,7 +48,11 @@
   <main class="auth">
     <header><h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1></header>
     <div id="login-offline-notice" role="status" aria-live="polite" hidden>
-      Sin conexión: iniciar sesión requiere Internet.
+      <span class="login-offline-icon" aria-hidden="true">!</span>
+      <span class="login-offline-copy">
+        <strong>Estás sin conexión</strong>
+        <span>Para iniciar sesión necesitas internet. Vuelve a intentarlo cuando se restablezca la conexión.</span>
+      </span>
     </div>
 
     <form id="login-form" method="post" data-solo-online>

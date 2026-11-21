@@ -1,7 +1,9 @@
+from types import SimpleNamespace
 from unittest.mock import patch
 
-from django.test import SimpleTestCase
-from django.urls import reverse
+from django.template.loader import render_to_string
+from django.test import RequestFactory, SimpleTestCase
+from django.urls import resolve, reverse
 
 from .views import exportar_excel, obtener_datos_reporte
 
@@ -9,6 +11,35 @@ from .views import exportar_excel, obtener_datos_reporte
 class ReportesUrlTests(SimpleTestCase):
     def test_reporte_tiene_url_nombrada(self):
         self.assertEqual(reverse("reportes:index"), "/reportes/")
+
+
+class ReportesOfflineTemplateTests(SimpleTestCase):
+    def test_snapshot_disables_filters_and_export(self):
+        request = RequestFactory().get("/reportes/", {"offline_snapshot": "1"})
+        request.user = SimpleNamespace(rol=SimpleNamespace(nombre="adm"))
+        request.resolver_match = resolve("/reportes/")
+        html = render_to_string(
+            "reportes/reportes.html",
+            {
+                "alimentos": [],
+                "funcionarios": [],
+                "insumos": [],
+                "categorias": [],
+                "categoria_seleccionada": "",
+                "filtro_alimento": "",
+                "filtro_funcionario": "",
+                "filtro_insumo": "",
+                "fecha_generacion": None,
+                "insumos_sin_stock": 0,
+                "offline_snapshot": True,
+            },
+            request=request,
+        )
+
+        self.assertIn('name="winstock-offline-snapshot"', html)
+        self.assertNotIn("Exportar Excel", html)
+        self.assertNotIn("<form", html)
+        self.assertNotIn("csrfmiddlewaretoken", html)
 
 
 class ReportesExcelTests(SimpleTestCase):

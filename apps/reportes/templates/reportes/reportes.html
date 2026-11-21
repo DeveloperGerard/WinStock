@@ -6,6 +6,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'reportes/reportes.css' %}">
+  {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -15,13 +16,16 @@
       <h2>Reporte actual del predio</h2>
       <p>Generado el {{ fecha_generacion|date:"d/m/Y H:i" }}</p>
     </div>
-    <div class="reportes-actions">
-      <a class="btn" href="{% url 'reportes:index' %}">Limpiar filtros</a>
-      <a class="btn dark" href="{% url 'reportes:index' %}?alimento_q={{ filtro_alimento|urlencode }}&amp;funcionario_q={{ filtro_funcionario|urlencode }}&amp;insumo_q={{ filtro_insumo|urlencode }}&amp;categoria={{ categoria_seleccionada|urlencode }}&amp;export=xlsx">Exportar Excel</a>
-    </div>
+    {% if not offline_snapshot %}
+      <div class="reportes-actions">
+        <a class="btn" href="{% url 'reportes:index' %}">Limpiar filtros</a>
+        <a class="btn dark" href="{% url 'reportes:index' %}?alimento_q={{ filtro_alimento|urlencode }}&amp;funcionario_q={{ filtro_funcionario|urlencode }}&amp;insumo_q={{ filtro_insumo|urlencode }}&amp;categoria={{ categoria_seleccionada|urlencode }}&amp;export=xlsx" data-solo-online>Exportar Excel</a>
+      </div>
+    {% endif %}
   </div>
 
-  <form class="reportes-filter" method="get">
+  {% if not offline_snapshot %}
+    <form class="reportes-filter" method="get" data-solo-online>
     <div class="reportes-filter__search">
       <label for="reporte-alimento">Buscar alimento</label>
       <input id="reporte-alimento" type="search" name="alimento_q" value="{{ filtro_alimento }}" placeholder="Nombre del alimento">
@@ -45,8 +49,9 @@
         {% endfor %}
       </select>
     </div>
-    <button class="btn dark" type="submit">Filtrar</button>
-  </form>
+      <button class="btn dark" type="submit" data-solo-online>Filtrar</button>
+    </form>
+  {% endif %}
 
   <div class="reportes-cards">
     <article class="reportes-card">

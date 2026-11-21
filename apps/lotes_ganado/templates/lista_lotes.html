@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="{% static 'insumos.css' %}">
 	<link rel="stylesheet" href="{% static 'crear_insumo.css' %}">
 	<link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+	{% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -15,26 +16,30 @@
 	<div class="insumos-heading">
 		<div>
 			<h2>Lotes</h2>
-			<p>Consulta y administra los lotes de ganado.</p>
+			<p>{% if offline_snapshot %}Consulta los lotes guardados antes de quedar sin conexión.{% else %}Consulta y administra los lotes de ganado.{% endif %}</p>
 		</div>
-		<a class="btn dark" href="{% url 'ganado:crear_lote' %}">+ Nuevo lote</a>
+		{% if not offline_snapshot %}
+			<a class="btn dark" href="{% url 'ganado:crear_lote' %}" data-solo-online>+ Nuevo lote</a>
+		{% endif %}
 	</div>
 
-	<form class="insumos-filter" method="get">
-		<div class="insumos-filter__field registro-insumo__field">
-			<label for="filtro-q">Buscar por nombre</label>
-			<input id="filtro-q" type="search" name="q" value="{{ q }}" placeholder="Nombre del lote">
-		</div>
-		<div class="insumos-filter__field">
-			<label for="filtro-estado">Estado</label>
-			<select id="filtro-estado" name="estado">
-				<option value=""{% if estado == '' %} selected{% endif %}>Todos</option>
-				<option value="activos"{% if estado == 'activos' %} selected{% endif %}>Activos</option>
-				<option value="inactivos"{% if estado == 'inactivos' %} selected{% endif %}>Inactivos</option>
-			</select>
-		</div>
-		<button class="btn" type="submit">Filtrar</button>
-	</form>
+	{% if not offline_snapshot %}
+		<form class="insumos-filter" method="get" data-solo-online>
+			<div class="insumos-filter__field registro-insumo__field">
+				<label for="filtro-q">Buscar por nombre</label>
+				<input id="filtro-q" type="search" name="q" value="{{ q }}" placeholder="Nombre del lote">
+			</div>
+			<div class="insumos-filter__field">
+				<label for="filtro-estado">Estado</label>
+				<select id="filtro-estado" name="estado">
+					<option value=""{% if estado == '' %} selected{% endif %}>Todos</option>
+					<option value="activos"{% if estado == 'activos' %} selected{% endif %}>Activos</option>
+					<option value="inactivos"{% if estado == 'inactivos' %} selected{% endif %}>Inactivos</option>
+				</select>
+			</div>
+			<button class="btn" type="submit" data-solo-online>Filtrar</button>
+		</form>
+	{% endif %}
 
 	<div class="insumos-table-wrap">
 		<table class="insumos-table">
@@ -43,7 +48,7 @@
 					<th scope="col">Nombre</th>
 					<th scope="col" style="text-align: right;">Cantidad de animales</th>
 					<th scope="col">Estado</th>
-					<th scope="col">Acciones</th>
+					{% if not offline_snapshot %}<th scope="col">Acciones</th>{% endif %}
 				</tr>
 			</thead>
 			<tbody>
@@ -64,18 +69,20 @@
 							<span class="alimentos-status alimentos-status-inactive">Deshabilitado</span>
 						{% endif %}
 					</td>
-					<td class="insumos-actions">
-						<a class="btn" href="{% url 'ganado:editar_lote' lote.uuid %}">Editar</a>
-						<form class="alimentos-inline-form" method="post" action="{% url 'ganado:cambiar_estado_lote' lote.uuid %}">
-							{% csrf_token %}
-							<button class="btn" type="submit">{% if lote.activo %}Deshabilitar{% else %}Habilitar{% endif %}</button>
-						</form>
-						<a class="btn" href="{% url 'ganado:eliminar_lote' lote.uuid %}">Eliminar</a>
-					</td>
+					{% if not offline_snapshot %}
+						<td class="insumos-actions">
+							<a class="btn" href="{% url 'ganado:editar_lote' lote.uuid %}" data-solo-online>Editar</a>
+							<form class="alimentos-inline-form" method="post" action="{% url 'ganado:cambiar_estado_lote' lote.uuid %}" data-solo-online>
+								{% csrf_token %}
+								<button class="btn" type="submit" data-solo-online>{% if lote.activo %}Deshabilitar{% else %}Habilitar{% endif %}</button>
+							</form>
+							<a class="btn" href="{% url 'ganado:eliminar_lote' lote.uuid %}" data-solo-online>Eliminar</a>
+						</td>
+					{% endif %}
 				</tr>
 				{% empty %}
 				<tr>
-					<td class="insumos-empty" colspan="4">No hay lotes que coincidan. Cambia el filtro o crea uno nuevo.</td>
+					<td class="insumos-empty" colspan="{% if offline_snapshot %}3{% else %}4{% endif %}">No hay lotes que coincidan.</td>
 				</tr>
 				{% endfor %}
 			</tbody>

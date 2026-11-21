@@ -22,3 +22,17 @@ class LoginPWATemplateTests(SimpleTestCase):
         self.assertIn('rel="manifest" href="/static/manifest.webmanifest"', html)
         self.assertNotIn("Instalar WinStock", html)
         self.assertNotIn("beforeinstallprompt", html)
+
+    def test_accounts_offline_snapshot_is_read_only(self):
+        request = RequestFactory().get("/cuentas/", {"offline_snapshot": "1"})
+        request.user = SimpleNamespace(rol=SimpleNamespace(nombre="adm"))
+        request.resolver_match = resolve("/cuentas/")
+        html = render_to_string(
+            "cuentas.html",
+            {"funcionarios": [], "offline_snapshot": True},
+            request=request,
+        )
+
+        self.assertIn('name="winstock-offline-snapshot"', html)
+        self.assertNotIn("Crear funcionario", html)
+        self.assertNotIn("csrfmiddlewaretoken", html)

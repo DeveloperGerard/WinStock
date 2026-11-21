@@ -6,7 +6,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
-  {% if request.GET.offline_snapshot %}
+  {% if offline_snapshot %}
     <meta name="winstock-offline-snapshot" content="true">
   {% endif %}
 {% endblock %}
@@ -15,7 +15,7 @@
   <section class="alimentos-page">
     <div class="alimentos-heading">
       <div>
-        {% if request.GET.offline_snapshot %}
+        {% if offline_snapshot %}
           <h2>Alimentos registrados</h2>
           <p>Consulta los alimentos guardados antes de quedar sin conexión.</p>
         {% else %}
@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    {% if not request.GET.offline_snapshot %}
+    {% if not offline_snapshot %}
       <div class="alimentos-card">
         <form class="alimentos-form" method="post" data-solo-online>
           {% csrf_token %}

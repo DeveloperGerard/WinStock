@@ -6,6 +6,9 @@
 {% block extra_head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+  {% if offline_snapshot %}
+    <meta name="winstock-offline-snapshot" content="true">
+  {% endif %}
 {% endblock %}
 
 {% block content %}

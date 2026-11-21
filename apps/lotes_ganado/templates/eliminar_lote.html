@@ -16,10 +16,10 @@
 		Esta acción no se puede deshacer. Si solo quieres ocultar el lote, puedes deshabilitarlo en lugar de eliminarlo.
 	</p>
 
-	<form method="post">
+	<form method="post" data-solo-online>
 		{% csrf_token %}
 		<div class="insumo-delete-confirmation__actions">
-			<button class="btn insumo-delete-confirmation__submit" type="submit">Sí, eliminar</button>
+			<button class="btn insumo-delete-confirmation__submit" type="submit" data-solo-online>Sí, eliminar</button>
 			<a class="btn" href="{% url 'ganado:lotes' %}">Cancelar</a>
 		</div>
 	</form>

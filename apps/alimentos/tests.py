@@ -16,7 +16,7 @@ class AlimentosOfflineTemplateTests(SimpleTestCase):
         request.user = AnonymousUser()
         html = render_to_string(
             "alimentos/alimentos.html",
-            {"alimentos": [], "form": None},
+            {"alimentos": [], "form": None, "offline_snapshot": True},
             request=request,
         )
 
@@ -43,6 +43,14 @@ class AlimentosViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "alimentos/alimentos.html")
         self.assertContains(response, "alimentos/alimentos.css")
+
+    def test_inicio_offline_snapshot_is_read_only(self):
+        response = self.client.get("/", {"offline_snapshot": "1"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="winstock-offline-snapshot"')
+        self.assertNotContains(response, 'class="alimentos-form"')
+        self.assertNotContains(response, "csrfmiddlewaretoken")
 
     def test_crear_alimento(self):
         response = self.client.post(
