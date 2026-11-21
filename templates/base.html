@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,14 +10,19 @@
   <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
   <title>{% block title %}WinStock{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'base.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
+
 <body>
   <aside>
-    <h1>WinStock<small>GESTIÓN DEL PREDIO</small></h1>
+    <h1>
+      WinStock
+      <small>GESTIÓN DEL PREDIO</small>
+    </h1>
+    
     <nav>
-      <a href="#">Resumen</a>
+      <a href="{% url 'funcionarios:inicio' %}" class="{% if request.resolver_match.namespace == 'funcionarios:inicio' %}on{% endif %}">Resumen</a>
       <a href="{% url 'raciones:raciones' %}">Raciones</a>
       <a href="{% url 'alimentos:crearalimentos' %}" class="{% if request.resolver_match.namespace == 'alimentos' %}on{% endif %}">Alimentos</a>
       <a href="{% url 'insumos:lista' %}" class="{% if request.resolver_match.namespace == 'insumos' %}on{% endif %}">Insumos</a>
@@ -28,8 +34,6 @@
         <a href="{% url 'funcionarios:cuentas' %}" class="{% if request.resolver_match.namespace == 'cuentas' %}on{% endif %}">Cuentas</a>
 
       {% endif %}
-
-
     </nav>
   </aside>
 
@@ -209,4 +213,5 @@
 
 
 </body>
+
 </html>
