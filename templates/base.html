@@ -24,7 +24,7 @@
       <!-- <a href="" >Reportes</a> -->
       {% if request.user.rol.nombre == 'adm' %}
         <a href="{% url 'reportes:index' %}" class="{% if request.resolver_match.namespace == 'reportes' %}on{% endif %}">Reportes</a>
-        <a href="{% url 'funcionarios:cuentas' %}" >Cuentas</a>
+  
         <a href="{% url 'funcionarios:cuentas' %}" class="{% if request.resolver_match.namespace == 'cuentas' %}on{% endif %}">Cuentas</a>
 
       {% endif %}
@@ -35,15 +35,10 @@
 
   <header>
     <b>{% block page_title %}Resumen{% endblock %}</b>
-    <div class="pwa-actions">
-      <button id="install-app" class="btn dark install-app" type="button" hidden style="display: none;">Instalar WinStock</button>
-      <span id="install-ios-help" class="install-ios-help" hidden>En iPhone/iPad: Compartir → Añadir a pantalla de inicio.</span>
-      <span id="install-status" class="install-status" role="status" aria-live="polite" hidden></span>
-      <details>
-        <summary> Mi cuenta </summary>
-        <div class="menu"><a id="logout-link" href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
-      </details>
-    </div>
+    <details>
+      <summary> Mi cuenta </summary>
+      <div class="menu"><a id="logout-link" href="{% url 'funcionarios:cerrarSesion' %}">Cerrar sesión</a></div>
+    </details>
   </header>
 
   <main>
@@ -53,11 +48,17 @@
     {% block content %}{% endblock %}
   </main>
   <script>
-    // Actualiza el aviso y bloquea acciones que necesitan conexión.
+    // ---- Estado de conexión -------------------------------------------------
+    // navigator.onLine solo es fiable cuando dice "false". Si el servidor está
+    // caído o el WiFi no tiene Internet sigue diciendo "true", así que además
+    // se consulta /ping/ (una ruta que el Service Worker no intercepta).
     const offlineBanner = document.getElementById('offline-banner');
-    let wasOffline = !navigator.onLine;
-    const updateConnectionState = () => {
-      const offline = !navigator.onLine;
+    const PING_URL = "{% url 'ping' %}";
+    let isOffline = !navigator.onLine;
+    let wasOffline = isOffline;
+
+    const applyConnectionState = (offline) => {
+      isOffline = offline;
       document.body.classList.toggle('modo-offline', offline);
       if (offlineBanner) offlineBanner.hidden = !offline;
 
@@ -66,22 +67,52 @@
         element.toggleAttribute('inert', offline);
       });
 
-      if (
-        wasOffline
-        && !offline
-        && document.querySelector('meta[name="winstock-offline-snapshot"]')
-      ) {
-        window.location.reload();
+      if (wasOffline && !offline) {
+        // Volvió la conexión: si se veía la copia de lectura, se recarga para
+        // restaurar el formulario; además se refrescan las copias guardadas.
+        if (document.querySelector('meta[name="winstock-offline-snapshot"]')) {
+          window.location.reload();
+          return;
+        }
+        warmServiceWorkerPages();
       }
       wasOffline = offline;
     };
 
-    updateConnectionState();
-    window.addEventListener('online', updateConnectionState);
-    window.addEventListener('offline', updateConnectionState);
+    const serverReachable = async () => {
+      if (!navigator.onLine) return false;
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 4000);
+      try {
+        const response = await fetch(PING_URL + '?t=' + Date.now(), {
+          cache: 'no-store',
+          credentials: 'omit',
+          signal: controller.signal
+        });
+        return response.ok;
+      } catch (error) {
+        return false;
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    const refreshConnectionState = async () => {
+      applyConnectionState(!(await serverReachable()));
+    };
+
+    // Estado inmediato con navigator.onLine y confirmación con el ping.
+    applyConnectionState(isOffline);
+    refreshConnectionState();
+    window.addEventListener('online', refreshConnectionState);
+    window.addEventListener('offline', () => applyConnectionState(true));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshConnectionState();
+    });
+    window.setInterval(refreshConnectionState, 15000);
 
     document.addEventListener('click', (event) => {
-      if (navigator.onLine || !(event.target instanceof Element)) return;
+      if (!isOffline || !(event.target instanceof Element)) return;
       if (event.target.closest('[data-solo-online]')) {
         event.preventDefault();
         event.stopPropagation();
@@ -90,7 +121,7 @@
 
     document.addEventListener('submit', (event) => {
       if (
-        !navigator.onLine
+        isOffline
         && event.target instanceof HTMLFormElement
         && event.target.matches('form[data-solo-online]')
       ) {
@@ -99,10 +130,25 @@
       }
     }, true);
 
-    // Registro PWA: el Service Worker conserva estáticos y páginas permitidas.
+    // ---- Registro PWA -------------------------------------------------------
+    // El Service Worker conserva estáticos y páginas permitidas. Al entrar con
+    // sesión se le pide guardar las 3 páginas de consulta para que funcionen
+    // sin conexión aunque no se hayan visitado una por una.
+    function warmServiceWorkerPages() {
+      if (!('serviceWorker' in navigator) || !navigator.onLine) return;
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          if (registration.active) {
+            registration.active.postMessage({ type: 'WARM_PAGES' });
+          }
+        })
+        .catch(() => {});
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register("{% url 'service_worker' %}")
+          .then(() => warmServiceWorkerPages())
           .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
       });
     }
@@ -145,72 +191,6 @@
       });
     }
 
-    // El navegador controla cuándo la aplicación puede instalarse.
-    let installPrompt = null;
-    const installButton = document.getElementById('install-app');
-    const iosInstallHelp = document.getElementById('install-ios-help');
-    const installStatus = document.getElementById('install-status');
-    const setInstallButtonVisible = (visible) => {
-      if (!installButton) return;
-      installButton.hidden = !visible;
-      installButton.style.display = visible ? '' : 'none';
-    };
-    const setInstallStatus = (message) => {
-      if (!installStatus) return;
-      installStatus.textContent = message;
-      installStatus.hidden = !message;
-    };
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
-      navigator.standalone === true;
-
-    if (isIOS && !isInstalled && iosInstallHelp) {
-      iosInstallHelp.hidden = false;
-    }
-
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      installPrompt = event;
-      setInstallButtonVisible(true);
-      setInstallStatus('');
-    });
-
-    if (installButton) {
-      installButton.addEventListener('click', async () => {
-        if (!installPrompt) {
-          setInstallStatus('Edge no ofreció la instalación. Abre el menú ⋯ y busca Aplicaciones.');
-          return;
-        }
-
-        const promptEvent = installPrompt;
-        installPrompt = null;
-        installButton.disabled = true;
-        setInstallStatus('Esperando la confirmación de Edge…');
-        try {
-          await promptEvent.prompt();
-          const { outcome } = await promptEvent.userChoice;
-          if (outcome === 'accepted') {
-            setInstallStatus('Instalación aceptada. Busca WinStock en el menú Inicio.');
-          } else {
-            setInstallStatus('Instalación cancelada. Puedes instalarla desde el menú ⋯ de Edge.');
-          }
-        } catch (error) {
-          console.error('No se pudo abrir el diálogo de instalación:', error);
-          setInstallStatus('Edge no pudo abrir el diálogo. Prueba desde el menú ⋯ → Aplicaciones.');
-        } finally {
-          installButton.disabled = false;
-          setInstallButtonVisible(false);
-        }
-      });
-    }
-
-    window.addEventListener('appinstalled', () => {
-      setInstallButtonVisible(false);
-      if (iosInstallHelp) iosInstallHelp.hidden = true;
-      setInstallStatus('WinStock se instaló correctamente. Búscala en el menú Inicio.');
-      installPrompt = null;
-    });
   </script>
 
 

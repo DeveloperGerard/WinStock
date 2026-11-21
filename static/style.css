@@ -64,38 +64,6 @@ header {
     border-bottom: 1px solid var(--bd);
 }
 
-.pwa-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.install-app {
-    font: inherit;
-    cursor: pointer;
-}
-
-.install-app[hidden],
-.install-ios-help[hidden] {
-    display: none;
-}
-
-.install-ios-help {
-    max-width: 240px;
-    color: var(--mut);
-    font-size: 11px;
-}
-
-.install-status {
-    max-width: 260px;
-    color: var(--mut);
-    font-size: 11px;
-}
-
-.install-status[hidden] {
-    display: none;
-}
-
 details {
     position: relative;
 }

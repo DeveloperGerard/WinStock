@@ -4,6 +4,7 @@ from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from .models import Alimento
+from apps.funcionarios.models import Funcionario
 
 
 class AlimentosOfflineTemplateTests(SimpleTestCase):
@@ -26,6 +27,16 @@ class AlimentosOfflineTemplateTests(SimpleTestCase):
 
 
 class AlimentosViewsTests(TestCase):
+    def setUp(self):
+        funcionario = Funcionario.objects.create_user(
+            rut="11111111-1",
+            password="test1234",
+            first_name="Test",
+            last_name="Usuario",
+            email="test@example.com",
+        )
+        self.client.force_login(funcionario)
+
     def test_inicio_muestra_plantilla_de_alimentos(self):
         response = self.client.get("/")
 
