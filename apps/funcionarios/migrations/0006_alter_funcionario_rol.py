@@ -17,3 +17,5 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(blank=True, db_column='rol_id', null=True, on_delete=django.db.models.deletion.PROTECT, to='funcionarios.rol'),
         ),
     ]
+
+
