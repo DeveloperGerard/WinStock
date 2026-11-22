@@ -1,8 +1,8 @@
 const STATIC_CACHE_NAME = 'winstock-static-v8';
-const PAGES_CACHE_NAME = 'winstock-pages-v4';
+const PAGES_CACHE_NAME = 'winstock-pages-v5';
 const OFFLINE_URL = '/static/pwa/offline.html';
 const SNAPSHOT_PAGES = [
-  ['/', '/alimentos/?offline_snapshot=1'],
+  ['/', '/?offline_snapshot=1'],
   ['/alimentos/', '/alimentos/?offline_snapshot=1'],
   ['/alimentos/stock/', '/alimentos/stock/?offline_snapshot=1'],
   ['/cuentas/', '/cuentas/?offline_snapshot=1'],
@@ -16,6 +16,7 @@ const CURRENT_CACHE_NAMES = new Set([STATIC_CACHE_NAME, PAGES_CACHE_NAME]);
 const STATIC_ASSETS = [
   OFFLINE_URL,
   '/static/style.css',
+  '/static/css/inicio.css',
   '/static/alimentos/alimentos.css',
   '/static/cuentas.css',
   '/static/insumos.css',

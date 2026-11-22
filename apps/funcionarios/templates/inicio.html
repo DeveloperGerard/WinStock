@@ -6,6 +6,7 @@ inicio
 {% endblock %}
 
 {% block extra_head %}
+    {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
     <link rel="stylesheet" href="{% static 'css/inicio.css' %}">
 {% endblock %}
 

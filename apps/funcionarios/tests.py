@@ -13,6 +13,14 @@ class LoginPWATemplateTests(SimpleTestCase):
         self.assertIn('rel="manifest" href="/static/manifest.webmanifest"', html)
         self.assertIn('navigator.serviceWorker.register("/service-worker.js")', html)
 
+    def test_service_worker_caches_the_home_snapshot_for_offline_use(self):
+        response = self.client.get("/service-worker.js")
+        script = b"".join(response.streaming_content).decode()
+
+        self.assertIn("['/', '/?offline_snapshot=1']", script)
+        self.assertIn("'/static/css/inicio.css'", script)
+        self.assertNotIn("['/', '/alimentos/?offline_snapshot=1']", script)
+
     def test_base_template_leaves_installation_to_the_browser(self):
         request = RequestFactory().get("/")
         request.user = SimpleNamespace(rol=SimpleNamespace(nombre="adm"))

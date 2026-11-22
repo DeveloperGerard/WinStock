@@ -37,20 +37,20 @@ class AlimentosViewsTests(TestCase):
         )
         self.client.force_login(funcionario)
 
-    def test_inicio_muestra_plantilla_de_alimentos(self):
+    def test_inicio_muestra_plantilla_inicio(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "alimentos/alimentos.html")
-        self.assertContains(response, "alimentos/alimentos.css")
+        self.assertTemplateUsed(response, "inicio.html")
+        self.assertContains(response, "css/inicio.css")
 
     def test_inicio_offline_snapshot_is_read_only(self):
         response = self.client.get("/", {"offline_snapshot": "1"})
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "inicio.html")
         self.assertContains(response, 'name="winstock-offline-snapshot"')
-        self.assertNotContains(response, 'class="alimentos-form"')
-        self.assertNotContains(response, "csrfmiddlewaretoken")
+        self.assertContains(response, "Existencias de alimentos")
 
     def test_crear_alimento(self):
         response = self.client.post(
