@@ -2,6 +2,9 @@
 
 {% block title %}Raciones{% endblock %}
 {% block page_title %}Raciones{% endblock %}
+{% block extra_head %}
+  {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container-xl px-0">
@@ -9,8 +12,8 @@
   <!-- Encabezado -->
   <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-2 mb-4">
     <div>
-      <h1 class="h3 fw-bold mb-1">Registrar ración diaria</h1>
-      <p class="text-secondary mb-0">Registra los alimentos utilizados por lote y turno. El stock se descuenta automáticamente al guardar.</p>
+      <h2 class="h3 fw-bold mb-1">{% if offline_snapshot %}Historial de raciones{% else %}Registrar ración diaria</h2>
+      {% if offline_snapshot %}Consulta las últimas raciones guardadas antes de quedar sin conexión.{% else %}Registra los alimentos utilizados por lote y turno. El stock se descuenta automáticamente al guardar.{% endif %}</p>
     </div>
     <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fw-semibold px-3 py-2 align-self-start text-wrap">
       <i class="bi bi-arrow-repeat me-1"></i>Descuento automático de inventario
@@ -28,16 +31,20 @@
           <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <div class="row g-3 mb-4">
-          {% for field in form %}
-            <div class="col-12 col-sm-6 col-lg-4 campo">
-              <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-              {{ field }}
-              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-              {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-            </div>
-          {% endfor %}
-        </div>
+  {% if not offline_snapshot %}
+  <div class="raciones-card">
+    <form method="post" id="racion-form" class="raciones-form" data-solo-online>
+      {% csrf_token %}
+      <div class="raciones-section-title"><h3>Datos de la ración</h3></div>
+      {% if form.non_field_errors %}<div class="raciones-errors">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="raciones-fields">
+        {% for field in form %}
+          <div class="raciones-field">
+            {{ field.label_tag }}{{ field }}
+            {% for error in field.errors %}<small class="raciones-errors">{{ error }}</small>{% endfor %}
+          </div>
+        {% endfor %}
+      </div>
 
         <hr class="my-4">
 
@@ -46,7 +53,7 @@
             <h2 class="h5 fw-semibold mb-1">Alimentos de la ración</h2>
             <p class="text-secondary small mb-0">Indica cuánto se utilizará de cada alimento.</p>
           </div>
-          <button type="button" class="btn btn-outline-ws" id="agregar-detalle">
+          <button type="button" class="btn btn-outline-ws" id="agregar-detalle" data-solo-online>
             <i class="bi bi-plus-lg me-1"></i>Agregar alimento
           </button>
         </div>
@@ -97,6 +104,7 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <!-- Historial -->
   <h2 class="h5 fw-semibold mb-3">Últimas raciones registradas</h2>
@@ -128,65 +136,29 @@
       </table>
     </div>
   </div>
+</section>
 
-</div>
-
-<!-- Plantilla para filas nuevas -->
-<template id="detalle-empty-form">
-  <div class="detalle-row border rounded-3 bg-body-tertiary p-3 mb-3">
-    <div class="row g-3 align-items-start">
-      <div class="col-12 col-md-6 campo">
-        <label for="id_detalles-__prefix__-alimento" class="form-label fw-medium">Alimento</label>
-        {{ formset.empty_form.alimento }}
-      </div>
-      <div class="col-8 col-md-4 campo">
-        <label for="id_detalles-__prefix__-kg" class="form-label fw-medium">Cantidad a utilizar</label>
-        <div class="input-group">
-          {{ formset.empty_form.kg }}
-          <span class="input-group-text">kg</span>
-        </div>
-      </div>
-      <div class="col-4 col-md-2">
-        <div class="form-label d-none d-md-block">&nbsp;</div>
-        <div class="form-check pt-md-2">
-          <input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE">
-          <label class="form-check-label" for="id_detalles-__prefix__-DELETE">Quitar</label>
-        </div>
-      </div>
+{% if not offline_snapshot %}
+  <template id="detalle-empty-form">
+    <div class="raciones-detail-row">
+      <div class="raciones-field"><label for="id_detalles-__prefix__-alimento">Alimento</label>{{ formset.empty_form.alimento }}</div>
+      <div class="raciones-field"><label for="id_detalles-__prefix__-kg">Cantidad a utilizar</label>{{ formset.empty_form.kg }}</div>
+      <label class="raciones-delete"><input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE"> Quitar</label>
     </div>
-  </div>
-</template>
-
-<script>
-(function () {
-  const form = document.getElementById('racion-form');
-  const container = document.getElementById('detalles-container');
-  const addButton = document.getElementById('agregar-detalle');
-  const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
-  const template = document.getElementById('detalle-empty-form');
-  if (!form || !container || !addButton || !totalForms || !template) return;
-
-  // Aplica clases de Bootstrap a los campos que genera Django.
-  function estilizar(root) {
-    root.querySelectorAll('select').forEach((el) => el.classList.add('form-select'));
-    root.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea')
-      .forEach((el) => el.classList.add('form-control'));
-    root.querySelectorAll('input[type=checkbox]').forEach((el) => el.classList.add('form-check-input'));
-    root.querySelectorAll('.campo').forEach((campo) => {
-      if (campo.querySelector('.invalid-feedback')) {
-        campo.querySelectorAll('.form-control, .form-select').forEach((c) => c.classList.add('is-invalid'));
-      }
+  </template>
+  <script>
+  (function () {
+    const container = document.getElementById('detalles-container');
+    const addButton = document.getElementById('agregar-detalle');
+    const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+    const template = document.getElementById('detalle-empty-form');
+    if (!container || !addButton || !totalForms || !template) return;
+    addButton.addEventListener('click', function () {
+      const index = Number(totalForms.value);
+      container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
+      totalForms.value = index + 1;
     });
-  }
-
-  estilizar(form);
-
-  addButton.addEventListener('click', function () {
-    const index = Number(totalForms.value);
-    container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
-    totalForms.value = index + 1;
-    estilizar(container);
-  });
-})();
-</script>
+  })();
+  </script>
+{% endif %}
 {% endblock %}

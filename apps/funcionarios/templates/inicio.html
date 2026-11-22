@@ -3,6 +3,10 @@
 {% block title %}Inicio{% endblock %}
 {% block page_title %}Inicio{% endblock %}
  
+{% block extra_head %}
+    {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="container-xl px-0">
  

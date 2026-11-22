@@ -1,30 +1,68 @@
-from django.test import TestCase
+from django.contrib.auth.models import AnonymousUser
+from django.template.loader import render_to_string
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import reverse
 
 from .models import Alimento
+from apps.funcionarios.models import Funcionario
+
+
+class AlimentosOfflineTemplateTests(SimpleTestCase):
+    def test_snapshot_sin_formulario_ni_token_csrf(self):
+        request = RequestFactory().get(
+            "/alimentos/",
+            {"offline_snapshot": "1"},
+        )
+        request.user = AnonymousUser()
+        html = render_to_string(
+            "alimentos/alimentos.html",
+            {"alimentos": [], "form": None, "offline_snapshot": True},
+            request=request,
+        )
+
+        self.assertNotIn('class="alimentos-form"', html)
+        self.assertNotIn("csrfmiddlewaretoken", html)
+        self.assertIn("Alimentos registrados", html)
+        self.assertIn('name="winstock-offline-snapshot"', html)
 
 
 class AlimentosViewsTests(TestCase):
-    def test_inicio_muestra_plantilla_de_alimentos(self):
+    def setUp(self):
+        funcionario = Funcionario.objects.create_user(
+            rut="11111111-1",
+            password="test1234",
+            first_name="Test",
+            last_name="Usuario",
+            email="test@example.com",
+        )
+        self.client.force_login(funcionario)
+
+    def test_inicio_muestra_plantilla_inicio(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "alimentos/alimentos.html")
-        self.assertContains(response, "alimentos/alimentos.css")
+        self.assertTemplateUsed(response, "inicio.html")
+        self.assertContains(response, "css/inicio.css")
+
+    def test_inicio_offline_snapshot_is_read_only(self):
+        response = self.client.get("/", {"offline_snapshot": "1"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "inicio.html")
+        self.assertContains(response, 'name="winstock-offline-snapshot"')
+        self.assertContains(response, "Existencias de alimentos")
 
     def test_crear_alimento(self):
         response = self.client.post(
             reverse("alimentos:crearalimentos"),
-            {"nombre": "Avena", "stock_registrado": "25 kg"},
+            {"nombre": "Avena", "stock": "25.00"},
         )
 
         self.assertRedirects(response, reverse("alimentos:crearalimentos"))
-        self.assertTrue(
-            Alimento.objects.filter(nombre="Avena", stock_registrado="25 kg").exists()
-        )
+        self.assertTrue(Alimento.objects.filter(nombre="Avena", stock="25.00").exists())
 
     def test_modificar_alimento(self):
-        alimento = Alimento.objects.create(nombre="Avena", stock_registrado="10 kg")
+        alimento = Alimento.objects.create(nombre="Avena", stock="10.00")
 
         page = self.client.get(
             reverse("alimentos:modificar_alimentos", args=[alimento.pk])
@@ -34,13 +72,13 @@ class AlimentosViewsTests(TestCase):
 
         response = self.client.post(
             reverse("alimentos:modificar_alimentos", args=[alimento.pk]),
-            {"nombre": "Maíz", "stock_registrado": "15 kg"},
+            {"nombre": "Maíz", "stock": "15.00"},
         )
 
         self.assertRedirects(response, reverse("alimentos:editar_alimentos"))
         alimento.refresh_from_db()
         self.assertEqual(alimento.nombre, "Maíz")
-        self.assertEqual(alimento.stock_registrado, "15 kg")
+        self.assertEqual(alimento.stock, 15.00)
 
     def test_lista_de_edicion_responde(self):
         response = self.client.get(reverse("alimentos:editar_alimentos"))
@@ -60,12 +98,24 @@ class AlimentosViewsTests(TestCase):
         self.assertFalse(alimento.estado)
 
     def test_stock_muestra_solo_alimentos_activos(self):
-        Alimento.objects.create(nombre="Avena", stock_registrado="25 kg")
+        Alimento.objects.create(nombre="Avena", stock="25.00")
         Alimento.objects.create(nombre="Maíz", estado=False)
 
         response = self.client.get(reverse("alimentos:quedastock"))
 
         self.assertContains(response, "Avena")
-        self.assertContains(response, "25 kg")
+        self.assertContains(response, "25,00")
         self.assertNotContains(response, "Maíz")
         self.assertContains(response, "alimentos/alimentos.css")
+
+    def test_lista_de_alimentos_muestra_el_stock_actual(self):
+        Alimento.objects.create(nombre="Brócoli", stock="12.50")
+
+        response = self.client.get(
+            reverse("alimentos:crearalimentos"),
+            {"offline_snapshot": "1"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Stock actual (kg)")
+        self.assertContains(response, "12,50")

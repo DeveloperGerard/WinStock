@@ -2,13 +2,35 @@ import uuid
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from django.contrib.auth.models import AnonymousUser
+from django.template.loader import render_to_string
 from django.test import RequestFactory, SimpleTestCase
-from django.urls import reverse
+from django.urls import resolve, reverse
 
 from .views import InsumoDeleteView, crear_insumo, lista_insumos
 
 
 class ListaInsumosTests(SimpleTestCase):
+    def test_offline_snapshot_hides_actions_and_filters(self):
+        request = RequestFactory().get("/insumos/", {"offline_snapshot": "1"})
+        request.user = AnonymousUser()
+        request.resolver_match = resolve("/insumos/")
+        html = render_to_string(
+            "insumos/lista_insumos.html",
+            {
+                "insumos": [],
+                "filtro_form": None,
+                "categoria_seleccionada": False,
+                "offline_snapshot": True,
+            },
+            request=request,
+        )
+
+        self.assertIn('name="winstock-offline-snapshot"', html)
+        self.assertNotIn("Registrar insumo", html)
+        self.assertNotIn("<form", html)
+        self.assertNotIn("csrfmiddlewaretoken", html)
+
     def test_selected_category_filters_inventory(self):
         request = RequestFactory().get("/insumos/", {"categoria": "3"})
         request.user = SimpleNamespace(is_authenticated=True)

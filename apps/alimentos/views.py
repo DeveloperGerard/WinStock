@@ -9,19 +9,25 @@ from .models import Alimento
 
 @login_required(login_url="funcionarios:iniciarSesion")
 def crearalimentos(request):
-    form = AlimentoForm(
-        data=request.POST if request.method == "POST" else None
-    )
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Alimento registrado correctamente.")
-        return redirect("alimentos:crearalimentos")
+    offline_snapshot = request.GET.get("offline_snapshot") == "1"
+    if request.method == "POST":
+        form = AlimentoForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Alimento registrado correctamente.")
+            return redirect("alimentos:crearalimentos")
+    else:
+        form = None if offline_snapshot else AlimentoForm()
 
     alimentos = Alimento.objects.order_by("nombre")
     return render(
         request,
         "alimentos/agregar_alimentos.html",
-        {"alimentos": alimentos, "form": form},
+        {
+            "alimentos": alimentos,
+            "form": form,
+            "offline_snapshot": offline_snapshot,
+        },
     )
 
 
@@ -62,4 +68,7 @@ def modificar_alimentos(request, alimento_id):
 @login_required(login_url="funcionarios:iniciarSesion")
 def quedastock(request):
     alimentos = Alimento.objects.filter(estado=True).order_by("nombre")
-    return render(request, "alimentos/lista_alimentos.html", {"alimentos": alimentos})
+    return render(request, "alimentos/lista_alimentos.html", {
+        "alimentos": alimentos,
+        "offline_snapshot": request.GET.get("offline_snapshot") == "1",
+    })

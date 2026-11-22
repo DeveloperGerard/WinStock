@@ -15,7 +15,7 @@
     <a class="btn" href="{% url 'insumos:lista' %}">Volver a insumos</a>
   </div>
 
-  <form class="registro-insumo__form" method="post">
+  <form class="registro-insumo__form" method="post" data-solo-online>
     {% csrf_token %}
     {{ form.non_field_errors }}
 
@@ -32,7 +32,7 @@
     </div>
 
     <div class="registro-insumo__actions">
-      <button class="registro-insumo__submit" type="submit">Crear insumo</button>
+      <button class="registro-insumo__submit" type="submit" data-solo-online>Crear insumo</button>
     </div>
   </form>
 </section>

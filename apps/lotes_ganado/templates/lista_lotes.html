@@ -3,7 +3,6 @@
 {% block title %}Lotes{% endblock %}
 {% block page_title %}Lotes{% endblock %}
 {% block extra_head %}
-  {{ block.super }}
   {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
 {% endblock %}
 
@@ -15,14 +14,16 @@
     <div>
       <h1 class="h3 fw-bold mb-1">Lotes</h1>
       <p class="text-secondary mb-0">
-        {% if offline_snapshot %}Consulta los lotes guardados antes de quedar sin conexión.{% else %}Consulta y administra los lotes de ganado.{% endif %}
-      </p>
+        {% if offline_snapshot %}Consulta los lotes guardados antes de quedar sin conexión.{% else %}{% if offline_snapshot %}Consulta los lotes guardados antes de quedar sin conexión.{% else %}Consulta y administra los lotes de ganado.{% endif %}
+      {% endif %}</p>
     </div>
-    {% if not offline_snapshot %}
-      <a class="btn btn-ws" href="{% url 'ganado:crear_lote' %}" data-solo-online>
+		{% if not offline_snapshot %}
+	    {% if not offline_snapshot %}
+      <a class="btn btn-ws" href="{% url 'ganado:crear_lote' %}" data-solo-online data-solo-online>
         <i class="bi bi-plus-lg me-1"></i>Nuevo lote
       </a>
     {% endif %}
+		{% endif %}
   </div>
 
   {% if offline_snapshot %}

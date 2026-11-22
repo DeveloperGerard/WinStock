@@ -13,8 +13,20 @@ from apps.raciones.models import Racion_diaria
 @login_required
 def inicio(request):
     if request.user.is_authenticated:
-        ultimas_raciones = Racion_diaria.objects.select_related('lote_id', 'usuario_id').order_by('-fecha', '-id')[:5]
-        return render(request,"inicio.html", {'ultimas_raciones': ultimas_raciones})
+        offline_snapshot = request.GET.get("offline_snapshot") == "1"
+        ultimas_raciones = (
+            Racion_diaria.objects
+            .select_related("lote_id", "usuario_id")
+            .order_by("-fecha", "-id")[:5]
+        )
+        return render(
+            request,
+            "inicio.html",
+            {
+                "offline_snapshot": offline_snapshot,
+                "ultimas_raciones": ultimas_raciones,
+            },
+        )
     return redirect("funcionarios:iniciarSesion")
 
 """
@@ -43,7 +55,10 @@ def cerrarSesion(request):
 @rol_requerido("adm")
 def cuentas(request):
     funcionarios = Funcionario.objects.exclude(id=request.user.id)
-    return render(request,"cuentas.html",{"funcionarios":funcionarios})
+    return render(request, "cuentas.html", {
+        "funcionarios": funcionarios,
+        "offline_snapshot": request.GET.get("offline_snapshot") == "1",
+    })
 
 
 @rol_requerido("adm")

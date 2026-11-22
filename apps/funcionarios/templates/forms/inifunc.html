@@ -42,18 +42,58 @@
       --bs-btn-active-bg: #0f2a21; --bs-btn-active-border-color: #0f2a21; --bs-btn-focus-shadow-rgb: 23, 61, 48; }
     .form-control:focus { border-color: var(--ws-green); box-shadow: 0 0 0 .2rem rgba(23, 61, 48, .15); }
   </style>
+  <style>
+    #login-offline-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid #ead18a;
+      border-left: 5px solid #c58a16;
+      border-radius: 12px;
+      background: linear-gradient(110deg, #fff8df, #fffdf6);
+      color: #493d12;
+      box-shadow: 0 8px 24px #493d3010;
+    }
+    #login-offline-notice[hidden] { display: none !important; }
+    .login-offline-icon {
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #f5e8bd;
+      color: #80530a;
+      font-weight: 800;
+    }
+    .login-offline-copy { display: grid; gap: 3px; line-height: 1.45; }
+    .login-offline-copy span { color: #685a37; font-size: 12px; }
+    body.modo-offline [data-solo-online] {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
   <main class="card auth-card">
     <header class="auth-head d-flex align-items-center gap-2">
       <p class="brand">WinStock</p>
     </header>
+    <div id="login-offline-notice" role="status" aria-live="polite" hidden>
+      <span class="login-offline-icon" aria-hidden="true">!</span>
+      <span class="login-offline-copy">
+        <strong>Estás sin conexión</strong>
+        <span>Para iniciar sesión necesitas internet. Vuelve a intentarlo cuando se restablezca la conexión.</span>
+      </span>
+    </div>
 
     <div class="card-body p-4">
       <h1 class="h3 fw-bold mb-1">Iniciar sesión</h1>
       <p class="text-secondary mb-4">Ingresa con tu RUT y contraseña.</p>
 
-      <form method="post" id="login-form">
+      <form id="login-form" method="post" id="login-form" data-solo-online>
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -68,12 +108,32 @@
           </div>
         {% endfor %}
 
-        <button class="btn btn-ws btn-lg w-100 mt-2" type="submit">Iniciar sesión</button>
+        <button class="btn btn-ws btn-lg w-100 mt-2" type="submit" type="submit" data-solo-online>Iniciar sesión</button>
       </form>
     </div>
   </main>
 
   <script>
+    const loginForm = document.getElementById('login-form');
+    const loginOfflineNotice = document.getElementById('login-offline-notice');
+    const updateLoginConnectionState = () => {
+      const offline = !navigator.onLine;
+      document.body.classList.toggle('modo-offline', offline);
+      loginOfflineNotice.hidden = !offline;
+      loginForm.inert = offline;
+      loginForm.querySelectorAll('button[data-solo-online]').forEach((button) => {
+        button.disabled = offline;
+        button.setAttribute('aria-disabled', String(offline));
+      });
+    };
+    
+    updateLoginConnectionState();
+    window.addEventListener('online', updateLoginConnectionState);
+    window.addEventListener('offline', updateLoginConnectionState);
+    loginForm.addEventListener('submit', (event) => {
+      if (!navigator.onLine) event.preventDefault();
+    });
+    
     // Registro PWA: el Service Worker solo almacena recursos estáticos.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

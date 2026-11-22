@@ -2,226 +2,399 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="#173D30">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="mobile-web-app-capable" content="yes">
-	<link rel="manifest" href="{% static 'manifest.webmanifest' %}">
-	<link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
-	
-	<!-- Bootstrap 5 + iconos + tipografía -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"rel="stylesheet">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<link href="{% static 'base.css' %}" rel="stylesheet">
-	{% block extra_head %}{% endblock %}
-	<title>{% block title %} {% endblock %} | WinStock</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173D30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <link rel="apple-touch-icon" href="{% static 'pwa/icon-192.png' %}">
+
+  <!-- Bootstrap 5 + iconos + tipografía -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="{% static 'base.css' %}" rel="stylesheet">
+
+  <!-- Estilos de la tarjeta de instalación y del modo sin conexión -->
+  <style>
+    .pwa-install-card {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: .9rem;
+      padding: .9rem;
+      color: #fff;
+    }
+    .pwa-install-card__icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; width: 38px; height: 38px;
+      border-radius: .6rem; background: rgba(255, 255, 255, .12);
+    }
+    .pwa-install-card .btn-light { --bs-btn-color: #173D30; }
+    body.modo-offline [data-solo-online] { opacity: .5; cursor: not-allowed; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+  <title>{% block title %} {% endblock %} | WinStock</title>
 </head>
 <body>
-    {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
-    <div class="app">
-        <!-- ===== Barra lateral ===== -->
-        <div class="sidebar-wrap">
-          	<aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebar" aria-label="Menú principal">
-            	<div class="sidebar-inner">
-					<div class="sidebar-brand d-flex align-items-start justify-content-between">
-						<div>
-							<p class="name">WinStock</p>
-							<small>GESTIÓN DEL PREDIO</small>
-						</div>
-						<button type="button"
-								class="btn-close btn-close-white d-lg-none mt-1"
-								data-bs-dismiss="offcanvas"
-								data-bs-target="#sidebar"
-								aria-label="Cerrar menú">
-						</button>
-					</div>
+  {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+  <div class="app">
 
-					<nav class="nav flex-column sidebar-nav">
-						<a class="nav-link {% if ns == 'funcionarios' and name == 'inicio' %}active{% endif %}"
-							href="{% url 'funcionarios:inicio' %}">
-							<i class="fa-solid fa-house"></i> inicio
-						</a>
-						<a class="nav-link {% if ns == 'raciones' %}active{% endif %}" 
-							href="{% url 'raciones:raciones' %}">
-							<i class="fa-solid fa-plate-wheat"></i> Raciones
-						</a>
-						<a class="nav-link {% if ns == 'alimentos' %}active{% endif %}" 
-							href="{% url 'alimentos:quedastock' %}">
-							<i class="fa-solid fa-wheat-awn"></i>Alimentos
-						</a>
-						<a class="nav-link {% if ns == 'insumos' %}active{% endif %}" 
-							href="{% url 'insumos:lista' %}">
-							<i class="fa-solid fa-box-open"></i> Insumos
-						</a>
-						<a class="nav-link {% if ns == 'ganado' %}active{% endif %}" 
-							href="{% url 'ganado:lotes' %}">
-							<i class="fa-solid fa-cow"></i> Ganado
-						</a>
+    <!-- ===== Barra lateral ===== -->
+    <div class="sidebar-wrap">
+      <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebar" aria-label="Menú principal">
+        <div class="sidebar-inner">
+          <div class="sidebar-brand d-flex align-items-start justify-content-between">
+            <div>
+              <p class="name">WinStock</p>
+              <small>GESTIÓN DEL PREDIO</small>
+            </div>
+            <button type="button"
+                    class="btn-close btn-close-white d-lg-none mt-1"
+                    data-bs-dismiss="offcanvas"
+                    data-bs-target="#sidebar"
+                    aria-label="Cerrar menú">
+            </button>
+          </div>
 
-						{% if request.user.rol.nombre == "adm" %}
-						<a class="nav-link {% if ns == 'reportes' %}active{% endif %}" 
-							href="{% url 'reportes:index' %}">
-							<i class="fa-solid fa-chart-bar"></i> Reportes
-						</a>
-						<a class="nav-link {% if ns == 'funcionarios' and name == 'cuentas' %}active{% endif %}"
-							href="{% url 'funcionarios:cuentas' %}">
-							<i class="fa-solid fa-user-group"></i> Cuentas
-						</a>
-						{% endif %}
-					</nav>
-				</div>
-          	</aside>
+          <nav class="nav flex-column sidebar-nav">
+            <a class="nav-link {% if ns == 'funcionarios' and name == 'inicio' %}active{% endif %}"
+               href="{% url 'funcionarios:inicio' %}">
+              <i class="fa-solid fa-house fa-fw"></i> Inicio
+            </a>
+            <a class="nav-link {% if ns == 'raciones' %}active{% endif %}"
+               href="{% url 'raciones:raciones' %}">
+              <i class="fa-solid fa-plate-wheat fa-fw"></i> Raciones
+            </a>
+            <a class="nav-link {% if ns == 'alimentos' %}active{% endif %}"
+               href="{% url 'alimentos:quedastock' %}">
+              <i class="fa-solid fa-wheat-awn fa-fw"></i> Alimentos
+            </a>
+            <a class="nav-link {% if ns == 'insumos' %}active{% endif %}"
+               href="{% url 'insumos:lista' %}">
+              <i class="fa-solid fa-box-open fa-fw"></i> Insumos
+            </a>
+            <a class="nav-link {% if ns == 'ganado' %}active{% endif %}"
+               href="{% url 'ganado:lotes' %}">
+              <i class="fa-solid fa-cow fa-fw"></i> Ganado
+            </a>
+
+            {% if request.user.rol.nombre == "adm" %}
+            <a class="nav-link {% if ns == 'reportes' %}active{% endif %}"
+               href="{% url 'reportes:index' %}">
+              <i class="fa-solid fa-chart-bar fa-fw"></i> Reportes
+            </a>
+            <a class="nav-link {% if ns == 'funcionarios' and name == 'cuentas' %}active{% endif %}"
+               href="{% url 'funcionarios:cuentas' %}">
+              <i class="fa-solid fa-user-group fa-fw"></i> Cuentas
+            </a>
+            {% endif %}
+          </nav>
+
+          <!-- Tarjeta para instalar la app (PWA) -->
+          <section class="pwa-install-card mt-auto mx-3 mb-3" id="install-card" aria-labelledby="install-title" hidden>
+            <div class="d-flex align-items-start gap-2 mb-3">
+              <span class="pwa-install-card__icon" aria-hidden="true">
+                <i class="bi bi-phone"></i>
+              </span>
+              <div>
+                <strong id="install-title" class="d-block small">WinStock en tu dispositivo</strong>
+                <p class="small mb-0 opacity-75">Accede más rápido desde tu pantalla de inicio.</p>
+              </div>
+            </div>
+            <button id="install-app" class="btn btn-light btn-sm w-100 fw-semibold" type="button" data-solo-online>
+              <i class="bi bi-download me-1"></i>Instalar app
+            </button>
+            <p class="small mt-2 mb-0 opacity-75" id="install-help" role="status" aria-live="polite" hidden></p>
+          </section>
         </div>
+      </aside>
+    </div>
 
-		<!-- ===== Sección principal ===== -->
-		<div class="app-main">
-			<!-- Barra superior -->
-			<header class="topbar sticky-top d-flex align-items-center gap-2">
-				<button class="btn btn-outline-secondary border-0 d-lg-none px-2" type="button"
-					data-bs-toggle="offcanvas" data-bs-target="#sidebar" 
-					aria-controls="sidebar" aria-label="Abrir menú">
-					<i class="bi bi-list fs-4"></i>
-				</button>
+    <!-- ===== Sección principal ===== -->
+    <div class="app-main">
 
-				<h2 class="page-title flex-grow-1">{% block page_title %}Resumen{% endblock %}</h2>
+      <!-- Barra superior -->
+      <header class="topbar sticky-top d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary border-0 d-lg-none px-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+                aria-controls="sidebar" aria-label="Abrir menú">
+          <i class="bi bi-list fs-4"></i>
+        </button>
 
-				<div class="d-flex align-items-center gap-2">
-					<button id="install-app" class="btn btn-ws btn-sm" type="button" hidden>
-						<i class="bi bi-download me-1"></i><span class="d-none d-sm-inline">Instalar WinStock</span><span class="d-sm-none">Instalar</span>
-					</button>
+        <h2 class="page-title flex-grow-1">{% block page_title %}Resumen{% endblock %}</h2>
 
-					<div class="dropdown">
-						<button class="btn btn-outline-secondary border-0 d-flex align-items-center gap-2" type="button"
-								data-bs-toggle="dropdown" aria-expanded="false">
-							<i class="bi bi-person-circle fs-5"></i>
-							<span class="d-none d-md-inline">Mi cuenta</span>
-						</button>
-						<ul class="dropdown-menu dropdown-menu-end shadow-sm">
-							{% if request.user.is_authenticated %}
-							<li><span class="dropdown-item-text text-muted small">{{ request.user.get_full_name|default:request.user.get_username }}</span></li>
-							<li><hr class="dropdown-divider"></li>
-							{% endif %}
-							<li>
-								<a class="dropdown-item" href="{% url 'funcionarios:cerrarSesion' %}">
-									<i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-								</a>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</header>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary border-0 d-flex align-items-center gap-2" type="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle fs-5"></i>
+            <span class="d-none d-md-inline">Mi cuenta</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            {% if request.user.is_authenticated %}
+            <li><span class="dropdown-item-text text-muted small">{{ request.user.get_full_name|default:request.user.get_username }}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            <li>
+              <a class="dropdown-item" id="logout-link" href="{% url 'funcionarios:cerrarSesion' %}">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+              </a>
+            </li>
+          </ul>
+        </div>
+      </header>
 
-			<!-- Avisos de instalación PWA -->
-			<div id="install-ios-help" class="alert alert-info alert-dismissible rounded-0 border-0 mb-0 py-2 small" role="status" hidden>
-				En iPhone/iPad: toca <i class="bi bi-box-arrow-up"></i> Compartir → Añadir a pantalla de inicio.
-				<button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-			</div>
-			<div id="install-status" class="alert alert-success rounded-0 border-0 mb-0 py-2 small" role="status" aria-live="polite" hidden></div>
+      <!-- Aviso de modo sin conexión -->
+      <div id="offline-banner" class="alert alert-warning rounded-0 border-0 border-bottom mb-0 py-2" role="status" aria-live="polite" hidden>
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+          <div class="d-flex align-items-start gap-2 flex-grow-1">
+            <i class="bi bi-wifi-off fs-5"></i>
+            <div class="small">
+              <strong class="d-block">Estás sin conexión</strong>
+              Ves la última información guardada. No puedes crear, modificar, filtrar ni generar informes hasta recuperar la conexión.
+            </div>
+          </div>
+          <button id="offline-retry" class="btn btn-sm btn-outline-dark" type="button">Revisar conexión</button>
+        </div>
+      </div>
 
-			<!-- Mensajes -->
-			{% if messages %}
-			  {% for message in messages %}
-				<div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show" role="alert">
-				  {{ message }}
-				  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-				</div>
-			  {% endfor %}
-			{% endif %}
-		  
-			<!-- Contenido página -->
-			<main class="app-content">
-				{% block content %}{% endblock %}
-			</main>
-		</div>
-	</div>
-	{% endwith %}
+      <!-- Mensajes -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show rounded-0 mb-0" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-	{% comment %} ===== Configuración PWA ===== {% endcomment %}
-    <script>
-		// Registro PWA: el Service Worker solo almacena recursos estáticos.
-		if ('serviceWorker' in navigator) {
-		window.addEventListener('load', () => {
-			navigator.serviceWorker.register("")
-			.catch((error) => console.error('No se pudo registrar el Service Worker:', error));
-		});
-		}
+      <!-- Contenido de la página -->
+      <main class="app-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% endwith %}
 
-		// El navegador controla cuándo la aplicación puede instalarse.
-		let installPrompt = null;
-		const installButton = document.getElementById('install-app');
-		const iosInstallHelp = document.getElementById('install-ios-help');
-		const installStatus = document.getElementById('install-status');
-		const setInstallButtonVisible = (visible) => {
-		if (!installButton) return;
-		installButton.hidden = !visible;
-		installButton.style.display = visible ? '' : 'none';
-		};
-		const setInstallStatus = (message) => {
-		if (!installStatus) return;
-		installStatus.textContent = message;
-		installStatus.hidden = !message;
-		};
-		const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-		(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-		const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
-		navigator.standalone === true;
+  <!-- ===== Configuración PWA ===== -->
+  <script>
+    // ---- Estado de conexión -------------------------------------------------
+    // navigator.onLine solo es fiable cuando dice "false". Si el servidor está
+    // caído o el WiFi no tiene Internet sigue diciendo "true", así que además
+    // se consulta /ping/ (una ruta que el Service Worker no intercepta).
+    const offlineBanner = document.getElementById('offline-banner');
+    const offlineRetry = document.getElementById('offline-retry');
+    const PING_URL = "{% url 'ping' %}";
+    let isOffline = !navigator.onLine;
+    let wasOffline = isOffline;
 
-		if (isIOS && !isInstalled && iosInstallHelp) {
-		iosInstallHelp.hidden = false;
-		}
+    const applyConnectionState = (offline) => {
+      isOffline = offline;
+      document.body.classList.toggle('modo-offline', offline);
+      if (offlineBanner) offlineBanner.hidden = !offline;
 
-		window.addEventListener('beforeinstallprompt', (event) => {
-		event.preventDefault();
-		installPrompt = event;
-		setInstallButtonVisible(true);
-		setInstallStatus('');
-		});
+      document.querySelectorAll('[data-solo-online]').forEach((element) => {
+        element.setAttribute('aria-disabled', String(offline));
+        element.toggleAttribute('inert', offline);
+      });
 
-		if (installButton) {
-		installButton.addEventListener('click', async () => {
-			if (!installPrompt) {
-			setInstallStatus('Edge no ofreció la instalación. Abre el menú ⋯ y busca Aplicaciones.');
-			return;
-			}
+      if (wasOffline && !offline) {
+        // Volvió la conexión: si se veía la copia de lectura, se recarga para
+        // restaurar el formulario; además se refrescan las copias guardadas.
+        if (document.querySelector('meta[name="winstock-offline-snapshot"]')) {
+          window.location.reload();
+          return;
+        }
+        warmServiceWorkerPages();
+      }
+      wasOffline = offline;
+    };
 
-			const promptEvent = installPrompt;
-			installPrompt = null;
-			installButton.disabled = true;
-			setInstallStatus('Esperando la confirmación de Edge…');
-			try {
-			await promptEvent.prompt();
-			const { outcome } = await promptEvent.userChoice;
-			if (outcome === 'accepted') {
-				setInstallStatus('Instalación aceptada. Busca WinStock en el menú Inicio.');
-			} else {
-				setInstallStatus('Instalación cancelada. Puedes instalarla desde el menú ⋯ de Edge.');
-			}
-			} catch (error) {
-			console.error('No se pudo abrir el diálogo de instalación:', error);
-			setInstallStatus('Edge no pudo abrir el diálogo. Prueba desde el menú ⋯ → Aplicaciones.');
-			} finally {
-			installButton.disabled = false;
-			setInstallButtonVisible(false);
-			}
-		});
-		}
+    const serverReachable = async () => {
+      if (!navigator.onLine) return false;
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 4000);
+      try {
+        const response = await fetch(PING_URL + '?t=' + Date.now(), {
+          cache: 'no-store',
+          credentials: 'omit',
+          signal: controller.signal
+        });
+        return response.ok;
+      } catch (error) {
+        return false;
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
 
-		window.addEventListener('appinstalled', () => {
-		setInstallButtonVisible(false);
-		if (iosInstallHelp) iosInstallHelp.hidden = true;
-		setInstallStatus('WinStock se instaló correctamente. Búscala en el menú Inicio.');
-		installPrompt = null;
-		});
-    </script>
+    const refreshConnectionState = async () => {
+      applyConnectionState(!(await serverReachable()));
+    };
 
-	<!-- bootstrap v5.2.9 -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
+    if (offlineRetry) offlineRetry.addEventListener('click', refreshConnectionState);
 
-	<!-- Font awesome v6 -->
-	<script src="https://kit.fontawesome.com/7ab8bcd99c.js" crossorigin="anonymous"></script>
+    // Estado inmediato con navigator.onLine y confirmación con el ping.
+    applyConnectionState(isOffline);
+    refreshConnectionState();
+    window.addEventListener('online', refreshConnectionState);
+    window.addEventListener('offline', () => applyConnectionState(true));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshConnectionState();
+    });
+    window.setInterval(refreshConnectionState, 15000);
+
+    document.addEventListener('click', (event) => {
+      if (!isOffline || !(event.target instanceof Element)) return;
+      if (event.target.closest('[data-solo-online]')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    document.addEventListener('submit', (event) => {
+      if (
+        isOffline
+        && event.target instanceof HTMLFormElement
+        && event.target.matches('form[data-solo-online]')
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    // ---- Registro PWA -------------------------------------------------------
+    // El Service Worker conserva estáticos y páginas permitidas. Al entrar con
+    // sesión se le pide guardar las páginas de consulta para que funcionen
+    // sin conexión aunque no se hayan visitado una por una.
+    function warmServiceWorkerPages() {
+      if (!('serviceWorker' in navigator) || !navigator.onLine) return;
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          if (registration.active) {
+            registration.active.postMessage({ type: 'WARM_PAGES' });
+          }
+        })
+        .catch(() => {});
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{% url 'service_worker' %}")
+          .then(() => warmServiceWorkerPages())
+          .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
+      });
+    }
+
+    // ---- Instalación de la app ----------------------------------------------
+    const installCard = document.getElementById('install-card');
+    const installButton = document.getElementById('install-app');
+    const installHelp = document.getElementById('install-help');
+    let installPrompt = null;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
+      navigator.standalone === true;
+
+    const showInstallHelp = (message) => {
+      if (!installHelp) return;
+      installHelp.textContent = message;
+      installHelp.hidden = false;
+    };
+
+    if (installCard && !isInstalled) installCard.hidden = false;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      if (installCard) installCard.hidden = false;
+      if (installHelp) installHelp.hidden = true;
+    });
+
+    if (installButton) {
+      installButton.addEventListener('click', async () => {
+        if (!installPrompt) {
+          showInstallHelp(
+            isIOS
+              ? 'En Safari, toca Compartir y elige “Añadir a pantalla de inicio”.'
+              : 'Abre el menú del navegador y elige “Instalar WinStock” o “Instalar aplicación”. Si no aparece, prueba con HTTPS y un navegador compatible.'
+          );
+          return;
+        }
+
+        const promptEvent = installPrompt;
+        installPrompt = null;
+        installButton.disabled = true;
+        if (installHelp) installHelp.hidden = true;
+        try {
+          await promptEvent.prompt();
+          const { outcome } = await promptEvent.userChoice;
+          if (outcome === 'accepted') {
+            if (installCard) installCard.hidden = true;
+          } else {
+            showInstallHelp('Instalación cancelada. Puedes intentarlo de nuevo cuando quieras.');
+          }
+        } catch (error) {
+          console.error('No se pudo abrir el diálogo de instalación:', error);
+          showInstallHelp('No se pudo iniciar la instalación. Prueba desde el menú del navegador.');
+        } finally {
+          installButton.disabled = false;
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installCard) installCard.hidden = true;
+      installPrompt = null;
+    });
+
+    // ---- Cerrar sesión: limpia las páginas guardadas antes de salir ----------
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink && navigator.serviceWorker) {
+      logoutLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        const destination = logoutLink.href;
+        const continueLogout = () => window.location.assign(destination);
+
+        navigator.serviceWorker.getRegistration()
+          .then((registration) => {
+            const worker = navigator.serviceWorker.controller
+              || (registration && registration.active);
+            if (!worker) {
+              continueLogout();
+              return;
+            }
+
+            const channel = new MessageChannel();
+            let timeoutId;
+            let finished = false;
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              window.clearTimeout(timeoutId);
+              channel.port1.close();
+              continueLogout();
+            };
+
+            channel.port1.onmessage = finish;
+            timeoutId = window.setTimeout(finish, 1000);
+            worker.postMessage({ type: 'CLEAR_PAGES' }, [channel.port2]);
+          })
+          .catch((error) => {
+            console.error('No se pudo borrar la caché antes de cerrar sesión:', error);
+            continueLogout();
+          });
+      });
+    }
+  </script>
+
+  <!-- Bootstrap v5.3.9 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js" integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu" crossorigin="anonymous"></script>
+
+  <!-- Font Awesome v6 -->
+  <script src="https://kit.fontawesome.com/7ab8bcd99c.js" crossorigin="anonymous"></script>
 </body>
 </html>

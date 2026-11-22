@@ -55,6 +55,7 @@ def index(request):
             "filtro_insumo": filtro_insumo,
             "fecha_generacion": timezone.localtime(),
             "insumos_sin_stock": insumos.filter(cantidad=0).count(),
+            "offline_snapshot": request.GET.get("offline_snapshot") == "1",
         },
     )
 
@@ -112,7 +113,7 @@ def exportar_excel(alimentos, funcionarios, insumos):
 
     _crear_hoja(
         wb, "Alimentos",
-        ["Nombre", "Stock registrado", "Estado"],
+        ["Nombre", "Stock registrado (kg)", "Estado"],
         [[a.nombre, a.stock, "Activo"] for a in alimentos],
     )
     _crear_hoja(
