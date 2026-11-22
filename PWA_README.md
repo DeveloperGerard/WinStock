@@ -4,7 +4,7 @@
 
 - Presenta un manifest con el nombre, iconos, colores y modo `standalone` de WinStock.
 - Enlaza el manifest y registra un Service Worker desde `/service-worker.js` tanto en `base.html` como en la pantalla de acceso.
-- La instalación se inicia desde las opciones habituales del navegador; WinStock no muestra un botón ni intercepta el evento `beforeinstallprompt`.
+- Muestra una tarjeta "Instalar app" en el menú lateral. Usa `beforeinstallprompt` cuando el navegador ofrece la instalación directa y muestra instrucciones alternativas en iOS y otros navegadores.
 - Precarga recursos estáticos y guarda una lista blanca de páginas de consulta con estrategia red primero y caché como respaldo.
 - Sin conexión, permite consultar las últimas instantáneas de `/`, `/alimentos/`, `/alimentos/stock/`, `/cuentas/`, `/insumos/`, `/ganado/lotes/`, `/raciones/` y `/reportes/`.
 - Las instantáneas son de solo lectura: no incluyen formularios, filtros ni acciones de escritura; tampoco guardan tokens CSRF. Crear/editar/eliminar, registrar raciones, filtrar y exportar informes requieren conexión. Las demás rutas muestran `offline.html` cuando no hay red.
@@ -42,7 +42,7 @@ ProyectoGit/
 
 ### Cómo se conectan
 
-1. `base.html` y `inifunc.html` enlazan `static/manifest.webmanifest` y registran el Service Worker.
+1. `base.html` y `inifunc.html` enlazan `static/manifest.webmanifest` y registran el Service Worker. `base.html` también ofrece la tarjeta de instalación junto al menú lateral.
 2. Desde esas plantillas, Django resuelve la ruta `service_worker` definida en `winstock_project/urls.py`.
 3. Esa ruta llama a `pwa_views.py`, que entrega `static/service-worker.js` desde la raíz para darle alcance a toda la aplicación.
 4. El Service Worker mantiene cachés versionadas separadas para recursos estáticos y páginas. Guarda las rutas de consulta indicadas arriba solo tras una respuesta correcta y no redirigida. Para guardarlas solicita una variante `offline_snapshot=1`, que elimina controles y tokens CSRF. Si una navegación falla, sirve la instantánea permitida o `offline.html`.
@@ -51,7 +51,7 @@ ProyectoGit/
 
 ## Instalación según plataforma
 
-- **Windows/Edge o Chrome:** se instala desde la opción que ofrezca el navegador. Si ya está instalada en ese perfil de Edge, puede abrirse desde `edge://apps`; fijarla a Inicio o crear un acceso de escritorio son acciones aparte.
+- **Windows/Edge o Chrome:** utiliza **Instalar app** en el menú lateral cuando esté disponible. Si el navegador no ofrece el diálogo directo, sigue las instrucciones de la tarjeta y utiliza la opción de instalación del menú del navegador. Si ya está instalada en ese perfil de Edge, puede abrirse desde `edge://apps`.
 - **Android:** abre el sitio en Chrome y utiliza la opción del navegador para instalar o añadir a la pantalla de inicio.
 - **iPhone/iPad:** en Safari, utiliza **Compartir → Añadir a pantalla de inicio**.
 

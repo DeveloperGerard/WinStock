@@ -35,6 +35,28 @@
 
       {% endif %}
     </nav>
+
+    <section class="pwa-install-card" id="install-card" aria-labelledby="install-title" hidden>
+      <div class="pwa-install-card__heading">
+        <span class="pwa-install-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="5" y="2.75" width="14" height="18.5" rx="2.5"></rect>
+            <path d="M9 6h6M10 18h4"></path>
+          </svg>
+        </span>
+        <div>
+          <strong id="install-title">WinStock en tu dispositivo</strong>
+          <p>Accede más rápido desde tu pantalla de inicio.</p>
+        </div>
+      </div>
+      <button id="install-app" class="pwa-install-button" type="button" data-solo-online>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+        </svg>
+        Instalar app
+      </button>
+      <p class="pwa-install-help" id="install-help" role="status" aria-live="polite" hidden></p>
+    </section>
   </aside>
 
   <header>
@@ -168,6 +190,67 @@
           .catch((error) => console.error('No se pudo registrar el Service Worker:', error));
       });
     }
+
+    const installCard = document.getElementById('install-card');
+    const installButton = document.getElementById('install-app');
+    const installHelp = document.getElementById('install-help');
+    let installPrompt = null;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
+      navigator.standalone === true;
+
+    const showInstallHelp = (message) => {
+      if (!installHelp) return;
+      installHelp.textContent = message;
+      installHelp.hidden = false;
+    };
+
+    if (installCard && !isInstalled) installCard.hidden = false;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      if (installCard) installCard.hidden = false;
+      if (installHelp) installHelp.hidden = true;
+    });
+
+    if (installButton) {
+      installButton.addEventListener('click', async () => {
+        if (!installPrompt) {
+          showInstallHelp(
+            isIOS
+              ? 'En Safari, toca Compartir y elige “Añadir a pantalla de inicio”.'
+              : 'Abre el menú del navegador y elige “Instalar WinStock” o “Instalar aplicación”. Si no aparece, prueba con HTTPS y un navegador compatible.'
+          );
+          return;
+        }
+
+        const promptEvent = installPrompt;
+        installPrompt = null;
+        installButton.disabled = true;
+        if (installHelp) installHelp.hidden = true;
+        try {
+          await promptEvent.prompt();
+          const { outcome } = await promptEvent.userChoice;
+          if (outcome === 'accepted') {
+            if (installCard) installCard.hidden = true;
+          } else {
+            showInstallHelp('Instalación cancelada. Puedes intentarlo de nuevo cuando quieras.');
+          }
+        } catch (error) {
+          console.error('No se pudo abrir el diálogo de instalación:', error);
+          showInstallHelp('No se pudo iniciar la instalación. Prueba desde el menú del navegador.');
+        } finally {
+          installButton.disabled = false;
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installCard) installCard.hidden = true;
+      installPrompt = null;
+    });
 
     const logoutLink = document.getElementById('logout-link');
     if (logoutLink && navigator.serviceWorker) {

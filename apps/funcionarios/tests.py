@@ -21,15 +21,17 @@ class LoginPWATemplateTests(SimpleTestCase):
         self.assertIn("'/static/css/inicio.css'", script)
         self.assertNotIn("['/', '/alimentos/?offline_snapshot=1']", script)
 
-    def test_base_template_leaves_installation_to_the_browser(self):
+    def test_base_template_offers_pwa_installation(self):
         request = RequestFactory().get("/")
         request.user = SimpleNamespace(rol=SimpleNamespace(nombre="adm"))
         request.resolver_match = resolve("/")
         html = render_to_string("base.html", {"request": request}, request=request)
 
         self.assertIn('rel="manifest" href="/static/manifest.webmanifest"', html)
-        self.assertNotIn("Instalar WinStock", html)
-        self.assertNotIn("beforeinstallprompt", html)
+        self.assertIn('id="install-app"', html)
+        self.assertIn('id="install-help"', html)
+        self.assertIn("beforeinstallprompt", html)
+        self.assertIn("Añadir a pantalla de inicio", html)
 
     def test_accounts_offline_snapshot_is_read_only(self):
         request = RequestFactory().get("/cuentas/", {"offline_snapshot": "1"})
