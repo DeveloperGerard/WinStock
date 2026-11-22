@@ -15,7 +15,7 @@
   <section class="alimentos-page">
     <div class="alimentos-heading">
       <div>
-        <h2>Stock registrado</h2>
+        <h2>Stock actual</h2>
         <p>Consulta el stock de los alimentos activos.</p>
       </div>
       <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:crearalimentos' %}">Volver a alimentos</a>
@@ -25,14 +25,14 @@
         <thead>
           <tr>
             <th>Alimento</th>
-            <th>Stock registrado</th>
+            <th>Stock actual (kg)</th>
           </tr>
         </thead>
         <tbody>
           {% for alimento in alimentos %}
             <tr>
               <td>{{ alimento.nombre }}</td>
-              <td>{{ alimento.stock_registrado }}</td>
+              <td>{{ alimento.stock }}</td>
             </tr>
           {% empty %}
             <tr><td class="alimentos-empty" colspan="2">No hay alimentos activos registrados.</td></tr>

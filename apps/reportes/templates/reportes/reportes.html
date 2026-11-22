@@ -82,12 +82,12 @@
     </div>
     <div class="reportes-table-wrap">
       <table class="reportes-table">
-        <thead><tr><th>Nombre</th><th>Stock registrado</th><th>Estado</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>Stock actual (kg)</th><th>Estado</th></tr></thead>
         <tbody>
           {% for alimento in alimentos %}
             <tr>
               <td>{{ alimento.nombre }}</td>
-              <td>{{ alimento.stock_registrado }}</td>
+              <td>{{ alimento.stock }}</td>
               <td><span class="reportes-status active">Activo</span></td>
             </tr>
           {% empty %}

@@ -23,7 +23,7 @@
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Stock registrado</th>
+            <th>Stock actual (kg)</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -32,7 +32,7 @@
           {% for alimento in alimentos %}
             <tr>
               <td>{{ alimento.nombre }}</td>
-              <td>{{ alimento.stock_registrado }}</td>
+              <td>{{ alimento.stock }}</td>
               <td>
                 {% if alimento.estado %}
                   <span class="alimentos-status alimentos-status-active">Activo</span>

@@ -38,10 +38,10 @@ def raciones(request):
                             alimento = alimentos.get(alimento_id)
                             if alimento is None:
                                 raise ValueError("Uno de los alimentos seleccionados ya no está disponible.")
-                            if alimento.stock_actual < cantidad:
+                            if alimento.stock < cantidad:
                                 raise ValueError(
                                     f"Stock insuficiente de {alimento.nombre}. Disponible: "
-                                    f"{alimento.stock_actual} {alimento.stock_registrado}; solicitado: {cantidad}."
+                                    f"{alimento.stock} kg; solicitado: {cantidad} kg."
                                 )
 
                         racion = form.save(commit=False)
@@ -57,8 +57,8 @@ def raciones(request):
                                 kg=cantidad,
                                 stock_insuficiente=False,
                             )
-                            alimento.stock_actual -= cantidad
-                            alimento.save(update_fields=["stock_actual"])
+                            alimento.stock -= cantidad
+                            alimento.save(update_fields=["stock"])
                             Movimientos_alimentos.objects.create(
                                 alimento=alimento,
                                 cantidad=-float(cantidad),

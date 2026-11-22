@@ -1,9 +1,12 @@
+from decimal import Decimal
+from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.template.loader import render_to_string
 from django.test import RequestFactory, SimpleTestCase
 from django.urls import resolve, reverse
+from openpyxl import load_workbook
 
 from .views import exportar_excel, obtener_datos_reporte
 
@@ -53,6 +56,15 @@ class ReportesExcelTests(SimpleTestCase):
         self.assertIn("reporte-winstock-", response["Content-Disposition"])
         self.assertIn(".xlsx", response["Content-Disposition"])
         self.assertGreater(len(response.content), 1000)
+
+    def test_exportacion_excel_incluye_stock_actual_de_alimentos(self):
+        alimento = SimpleNamespace(nombre="Avena", stock=Decimal("25.00"))
+
+        response = exportar_excel([alimento], [], [])
+        workbook = load_workbook(BytesIO(response.content), data_only=True)
+
+        self.assertEqual(workbook["Alimentos"]["B1"].value, "Stock actual (kg)")
+        self.assertEqual(workbook["Alimentos"]["B2"].value, Decimal("25.00"))
 
 
 class ReportesFiltrosTests(SimpleTestCase):
