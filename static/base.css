@@ -219,3 +219,17 @@ h3 {
     border-top: 1px solid var(--bd);
     font-weight: 700;
 }
+.menu-alerta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    margin-left: 8px;
+    border-radius: 20px;
+    background-color: #dc9635;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}

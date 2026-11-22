@@ -19,4 +19,9 @@ urlpatterns = [
         name="deshabilitar_alimentos",
     ),
     path("stock/", views.quedastock, name="quedastock"),
+    path(
+    'alertas/',
+    views.alertas_stock,
+    name='alertas_stock'
+),
 ]

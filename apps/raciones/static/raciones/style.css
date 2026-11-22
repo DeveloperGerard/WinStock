@@ -35,3 +35,19 @@
 .raciones-message.error{border-color:#f0d4d0;background:#fff3f1;color:#a43e3e}
 .raciones-errors{color:#a43e3e;font-size:12px}
 @media(max-width:700px){.raciones-heading,.raciones-detail-title{align-items:flex-start;flex-direction:column}.raciones-fields{grid-template-columns:1fr}.raciones-form{padding:16px}.raciones-detail-row{grid-template-columns:1fr}.raciones-delete{min-height:unset}.raciones-form-actions .raciones-button{width:100%}.raciones-table-wrap{overflow-x:auto}.raciones-table{min-width:560px}}
+.raciones-message.warning {
+    border: 1px solid #e9c46a;
+    background: #fff8e6;
+    color: #805b13;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.raciones-message.success {
+    border: 1px solid #c8dfce;
+    background: #edf7ef;
+    color: #28563d;
+    padding: 12px 16px;
+    border-radius: 6px;
+}

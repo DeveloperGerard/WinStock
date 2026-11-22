@@ -1,41 +1,114 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Stock de alimentos | WinStock{% endblock %}
-{% block page_title %}Stock de alimentos{% endblock %}
+{% block title %}Control de stock | WinStock{% endblock %}
+{% block page_title %}Control de stock{% endblock %}
+
 {% block extra_head %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
 {% endblock %}
 
 {% block content %}
-  <section class="alimentos-page">
-    <div class="alimentos-heading">
-      <div>
-        <h2>Stock registrado</h2>
-        <p>Consulta el stock de los alimentos activos.</p>
-      </div>
-      <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:crearalimentos' %}">Volver a alimentos</a>
+
+<section class="alimentos-page">
+
+  <div class="alimentos-heading">
+    <div>
+      <h2>Control de stock de alimentos</h2>
+      <p>Resumen de existencias y necesidades de reposición.</p>
     </div>
-    <div class="alimentos-table-wrapper">
-      <table class="alimentos-table">
-        <thead>
-          <tr>
-            <th>Alimento</th>
-            <th>Stock registrado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for alimento in alimentos %}
-            <tr>
-              <td>{{ alimento.nombre }}</td>
-              <td>{{ alimento.stock_registrado }}</td>
-            </tr>
-          {% empty %}
-            <tr><td class="alimentos-empty" colspan="2">No hay alimentos activos registrados.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+
+    <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:crearalimentos' %}">
+      Volver a alimentos
+    </a>
+  </div>
+
+  <!-- Indicadores -->
+  <div class="stock-indicadores">
+
+    <div class="stock-indicador stock-critico">
+      <span>Sin existencias</span>
+      <strong>{{ sin_stock }}</strong>
+      <small>Alimentos agotados</small>
     </div>
-  </section>
+
+    <div class="stock-indicador stock-bajo">
+      <span>Stock bajo</span>
+      <strong>{{ stock_bajo }}</strong>
+      <small>Necesitan reposición</small>
+    </div>
+
+    <div class="stock-indicador stock-normal">
+      <span>Stock normal</span>
+      <strong>{{ stock_normal }}</strong>
+      <small>Existencias suficientes</small>
+    </div>
+
+  </div>
+
+  <!-- Tabla de inventario -->
+  <div class="alimentos-section-heading">
+    <h2>Inventario de alimentos</h2>
+  </div>
+
+  <div class="alimentos-table-wrapper">
+    <table class="alimentos-table">
+
+      <thead>
+        <tr>
+          <th>Alimento</th>
+          <th>Stock actual</th>
+          <th>Stock mínimo</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for alimento in alimentos %}
+        <tr>
+          <td>{{ alimento.nombre }}</td>
+
+          <td>
+            {{ alimento.stock_actual }}
+            {{ alimento.stock_registrado }}
+          </td>
+
+          <td>
+            {{ alimento.stock_minimo }}
+            {{ alimento.stock_registrado }}
+          </td>
+
+          <td>
+            {% if alimento.stock_actual <= 0 %} <span class="stock-etiqueta etiqueta-critica">
+              Sin existencias
+              </span>
+
+              {% elif alimento.stock_actual <= alimento.stock_minimo %} <span class="stock-etiqueta etiqueta-baja">
+                Stock bajo
+                </span>
+
+                {% else %}
+                <span class="stock-etiqueta etiqueta-normal">
+                  Normal
+                </span>
+                {% endif %}
+          </td>
+        </tr>
+
+        {% empty %}
+        <tr>
+          <td colspan="4" class="alimentos-empty">
+            No hay alimentos activos registrados.
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
 {% endblock %}

@@ -3,28 +3,71 @@
 
 {% block title %}Modificar {{ alimento.nombre }} | WinStock{% endblock %}
 {% block page_title %}Modificar alimento{% endblock %}
+
 {% block extra_head %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
 {% endblock %}
 
 {% block content %}
-  <section class="alimentos-page">
-    <div class="alimentos-heading">
-      <div>
-        <h2>Modificar alimento</h2>
-        <p>Actualiza los datos de {{ alimento.nombre }}.</p>
+
+<section class="alimentos-page">
+
+  <div class="alimentos-heading">
+    <div>
+      <h2>Modificar alimento</h2>
+      <p>Actualiza los datos de {{ alimento.nombre }}.</p>
+    </div>
+  </div>
+
+
+  <div class="alimentos-card alimentos-form-card">
+
+    <form class="alimentos-form" method="post">
+      {% csrf_token %}
+
+      {{ form.non_field_errors }}
+
+      <p>
+        {{ form.nombre.label_tag }}
+        {{ form.nombre }}
+        {{ form.nombre.errors }}
+      </p>
+
+      <p>
+        {{ form.stock_registrado.label_tag }}
+        {{ form.stock_registrado }}
+        {{ form.stock_registrado.errors }}
+      </p>
+
+      <p>
+        {{ form.stock_actual.label_tag }}
+        {{ form.stock_actual }}
+        {{ form.stock_actual.errors }}
+      </p>
+
+      <p>
+        {{ form.stock_minimo.label_tag }}
+        {{ form.stock_minimo }}
+        {{ form.stock_minimo.errors }}
+      </p>
+
+      <div class="alimentos-actions">
+
+        <button class="alimentos-button alimentos-button-primary" type="submit">
+          Guardar cambios
+        </button>
+
+        <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">
+          Cancelar
+        </a>
+
       </div>
-    </div>
-    <div class="alimentos-card alimentos-form-card">
-      <form class="alimentos-form" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="alimentos-actions">
-          <button class="alimentos-button alimentos-button-primary" type="submit">Guardar cambios</button>
-          <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">Cancelar</a>
-        </div>
-      </form>
-    </div>
-  </section>
+
+    </form>
+
+  </div>
+
+</section>
+
 {% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Alertas de inventario | WinStock{% endblock %}
+{% block page_title %}Alertas de inventario{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2>Estado del inventario</h2>
+        <p>Consulta los alimentos que necesitan reposición.</p>
+    </div>
+
+    <!-- Resumen de alertas -->
+    <div class="row mb-4">
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Stock bajo</h5>
+                    <h2 class="text-warning">{{ stock_bajo }}</h2>
+                    <p class="mb-0">Alimentos que necesitan reposición.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Sin existencias</h5>
+                    <h2 class="text-danger">{{ sin_stock }}</h2>
+                    <p class="mb-0">Alimentos cuyo stock llegó a cero o menos.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tabla de alertas -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h5 class="mb-3">Alimentos que requieren atención</h5>
+
+            {% if alimentos %}
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Stock actual</th>
+                            <th>Stock mínimo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for alimento in alimentos %}
+                        <tr>
+                            <td>{{ alimento.nombre }}</td>
+
+                            <td>
+                                {{ alimento.stock_actual }}
+                                {{ alimento.stock_registrado }}
+                            </td>
+
+                            <td>
+                                {{ alimento.stock_minimo }}
+                                {{ alimento.stock_registrado }}
+                            </td>
+
+                            <td>
+                                {% if alimento.stock_actual <= 0 %} <span class="badge bg-danger">
+                                    SIN EXISTENCIAS
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        STOCK BAJO
+                                    </span>
+                                    {% endif %}
+                            </td>
+
+                            <td>
+                                <a href="{% url 'alimentos:modificar_alimentos' alimento.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    Revisar alimento
+                                </a>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="text-center py-4">
+                <h5 class="text-success">¡Inventario en buen estado!</h5>
+                <p class="mb-0">
+                    No hay alimentos que necesiten reposición.
+                </p>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

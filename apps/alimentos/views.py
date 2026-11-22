@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-
+from django.db.models import F
 from .forms import AlimentoForm
 from .models import Alimento
 
@@ -57,7 +57,64 @@ def modificar_alimentos(request, alimento_id):
     )
 
 
+
 @login_required(login_url="funcionarios:iniciarSesion")
 def quedastock(request):
-    alimentos = Alimento.objects.filter(estado=True).order_by("nombre")
-    return render(request, "alimentos/quedastock.html", {"alimentos": alimentos})
+
+    alimentos = Alimento.objects.filter(
+        estado=True
+    ).order_by("nombre")
+
+    sin_stock = alimentos.filter(
+        stock_actual__lte=0
+    ).count()
+
+    stock_bajo = alimentos.filter(
+        stock_actual__gt=0,
+        stock_actual__lte=F("stock_minimo")
+    ).count()
+
+    stock_normal = alimentos.filter(
+        stock_actual__gt=F("stock_minimo")
+    ).count()
+
+    contexto = {
+        "alimentos": alimentos,
+        "sin_stock": sin_stock,
+        "stock_bajo": stock_bajo,
+        "stock_normal": stock_normal,
+    }
+
+    return render(
+        request,
+        "alimentos/quedastock.html",
+        contexto
+    )
+
+
+@login_required
+def alertas_stock(request):
+    alimentos = Alimento.objects.filter(
+        estado=True,
+        stock_actual__lte=F("stock_minimo")
+    ).order_by("nombre")
+
+    sin_stock = alimentos.filter(
+        stock_actual__lte=0
+    ).count()
+
+    stock_bajo = alimentos.filter(
+        stock_actual__gt=0
+    ).count()
+
+    contexto = {
+        "alimentos": alimentos,
+        "sin_stock": sin_stock,
+        "stock_bajo": stock_bajo,
+    }
+
+    return render(
+        request,
+        "alimentos/alertas_stock.html",
+        contexto
+    )
