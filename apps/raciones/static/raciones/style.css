@@ -4,7 +4,7 @@
 .raciones-heading h2{margin:0;color:#20342a;font-size:22px}
 .raciones-heading p,.raciones-section-title p{margin:7px 0 0;color:#6b7a72;line-height:1.5}
 .raciones-info{padding:8px 12px;border:1px solid #dce8df;border-radius:5px;background:#edf4ef;color:#28563d;font-size:12px;font-weight:650}
-.raciones-card,.raciones-table-wrap{overflow:hidden;border:1px solid #e5e7e2;border-radius:6px;background:#fff;box-shadow:0 3px 12px rgb(22 53 37 / 5%)}
+.raciones-card,.raciones-table-wrap{overflow:hidden;border:1px solid #e5e7e2;border-radius:6px;background:#fff}
 .raciones-form{padding:22px}
 .raciones-section-title{margin-bottom:15px}
 .raciones-section-title h3{margin:0;color:#20342a;font-size:16px}

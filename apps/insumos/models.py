@@ -5,16 +5,12 @@ from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Categoria(models.Model):
-    CATEGORIAS = {
-            'Lubricantes y fluidos':'Lubricantes y fluidos',
-            'Filtros y repuestos':'Filtros y repuestos',
-            'Elementos de reparacion':'Elementos de reparacion',
-            'Componentes y accesorios':'Componentes y accesorios',
-            'Combustible':'Combustible'
-        }
     categoria_id = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=25,unique=True,choices=CATEGORIAS)
-    descripcion= models.TextField()
+    nombre = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["nombre"]
 
     def __str__(self):
         return self.nombre
@@ -39,4 +35,6 @@ class Insumo(models.Model):
         blank=True
         )
 
+    def __str__(self):
+        return self.nombre
 

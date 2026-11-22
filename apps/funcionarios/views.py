@@ -6,11 +6,15 @@ from .forms import RegistroForm, CrearFuncionarioForm, EditarFuncionarioForm, Lo
 from django.http import HttpResponse
 from .models import Funcionario
 from .decorators import rol_requerido
-# Create your views here.
 
+from apps.alimentos.models import Alimento
+from apps.raciones.models import Racion_diaria
+
+@login_required
 def inicio(request):
     if request.user.is_authenticated:
-        return render(request,"inicio.html")
+        ultimas_raciones = Racion_diaria.objects.select_related('lote_id', 'usuario_id').order_by('-fecha', '-id')[:5]
+        return render(request,"inicio.html", {'ultimas_raciones': ultimas_raciones})
     return redirect("funcionarios:iniciarSesion")
 
 """

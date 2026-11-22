@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from apps.alimentos.models import Alimento, Movimientos_alimentos
 from .forms import RacionForm, DetalleRacionFormSet
-from .models import detalle_racion, racion_diaria
+from .models import Detalle_racion, Racion_diaria
 
 
 @login_required
@@ -37,10 +37,10 @@ def raciones(request):
                             alimento = alimentos.get(alimento_id)
                             if alimento is None:
                                 raise ValueError("Uno de los alimentos seleccionados ya no está disponible.")
-                            if alimento.stock_actual < cantidad:
+                            if alimento.stock < cantidad:
                                 raise ValueError(
                                     f"Stock insuficiente de {alimento.nombre}. Disponible: "
-                                    f"{alimento.stock_actual} {alimento.stock_registrado}; solicitado: {cantidad}."
+                                    f"{alimento.stock} {alimento.stock}; solicitado: {cantidad}."
                                 )
 
                         racion = form.save(commit=False)
@@ -50,14 +50,14 @@ def raciones(request):
                         for detalle in detalles:
                             alimento = alimentos[detalle["alimento"].pk]
                             cantidad = detalle["kg"]
-                            detalle_racion.objects.create(
+                            Detalle_racion.objects.create(
                                 racion_id=racion,
                                 alimento_id=alimento,
                                 kg=cantidad,
                                 stock_insuficiente=False,
                             )
-                            alimento.stock_actual -= cantidad
-                            alimento.save(update_fields=["stock_actual"])
+                            alimento.stock -= cantidad
+                            alimento.save(update_fields=["stock"])
                             Movimientos_alimentos.objects.create(
                                 alimento=alimento,
                                 cantidad=-float(cantidad),
@@ -75,7 +75,7 @@ def raciones(request):
         form = RacionForm(initial={"fecha": timezone.localdate()})
         formset = DetalleRacionFormSet(prefix="detalles")
 
-    ultimas_raciones = racion_diaria.objects.select_related("lote_id", "usuario_id").order_by("-fecha", "-id")[:8]
+    ultimas_raciones = Racion_diaria.objects.select_related("lote_id", "usuario_id").order_by("-fecha", "-id")[:8]
     return render(request, "raciones/raciones.html", {
         "form": form,
         "formset": formset,

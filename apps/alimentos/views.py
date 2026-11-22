@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.contrib import messages
 
 from .forms import AlimentoForm
 from .models import Alimento
@@ -13,12 +14,13 @@ def crearalimentos(request):
     )
     if request.method == "POST" and form.is_valid():
         form.save()
+        messages.success(request, "Alimento registrado correctamente.")
         return redirect("alimentos:crearalimentos")
 
     alimentos = Alimento.objects.order_by("nombre")
     return render(
         request,
-        "alimentos/alimentos.html",
+        "alimentos/agregar_alimentos.html",
         {"alimentos": alimentos, "form": form},
     )
 
@@ -60,4 +62,4 @@ def modificar_alimentos(request, alimento_id):
 @login_required(login_url="funcionarios:iniciarSesion")
 def quedastock(request):
     alimentos = Alimento.objects.filter(estado=True).order_by("nombre")
-    return render(request, "alimentos/quedastock.html", {"alimentos": alimentos})
+    return render(request, "alimentos/lista_alimentos.html", {"alimentos": alimentos})

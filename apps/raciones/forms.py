@@ -2,12 +2,12 @@ from django import forms
 from django.forms import formset_factory
 from apps.alimentos.models import Alimento
 from apps.lotes_ganado.models import Lote
-from .models import racion_diaria
+from .models import Racion_diaria
 
 
 class RacionForm(forms.ModelForm):
     class Meta:
-        model = racion_diaria
+        model = Racion_diaria
         fields = ("fecha", "turno", "lote_id")
         labels = {"fecha": "Fecha", "turno": "Turno", "lote_id": "Lote"}
         widgets = {

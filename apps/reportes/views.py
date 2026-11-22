@@ -113,7 +113,7 @@ def exportar_excel(alimentos, funcionarios, insumos):
     _crear_hoja(
         wb, "Alimentos",
         ["Nombre", "Stock registrado", "Estado"],
-        [[a.nombre, a.stock_registrado, "Activo"] for a in alimentos],
+        [[a.nombre, a.stock, "Activo"] for a in alimentos],
     )
     _crear_hoja(
         wb, "Funcionarios",
