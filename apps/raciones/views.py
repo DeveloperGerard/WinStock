@@ -12,6 +12,7 @@ from .models import detalle_racion, racion_diaria
 
 @login_required
 def raciones(request):
+    offline_snapshot = request.GET.get("offline_snapshot") == "1"
     if request.method == "POST":
         form = RacionForm(request.POST)
         formset = DetalleRacionFormSet(request.POST, prefix="detalles")
@@ -71,6 +72,9 @@ def raciones(request):
                     messages.error(request, str(error))
         else:
             messages.error(request, "Revisa los datos del formulario.")
+    elif offline_snapshot:
+        form = None
+        formset = None
     else:
         form = RacionForm(initial={"fecha": timezone.localdate()})
         formset = DetalleRacionFormSet(prefix="detalles")
@@ -80,4 +84,5 @@ def raciones(request):
         "form": form,
         "formset": formset,
         "ultimas_raciones": ultimas_raciones,
+        "offline_snapshot": offline_snapshot,
     })

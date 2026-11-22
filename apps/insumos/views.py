@@ -13,12 +13,16 @@ from .models import Insumo
 def lista_insumos(request):
     if request.user.is_authenticated:
         insumos = Insumo.objects.select_related("categoria").order_by("nombre")
-        filtro_form = FiltroCategoriaForm(request.GET)
+        offline_snapshot = request.GET.get("offline_snapshot") == "1"
         categoria = None
-        if filtro_form.is_valid():
-            categoria = filtro_form.cleaned_data["categoria"]
-            if categoria:
-                insumos = insumos.filter(categoria=categoria)
+        if offline_snapshot:
+            filtro_form = None
+        else:
+            filtro_form = FiltroCategoriaForm(request.GET)
+            if filtro_form.is_valid():
+                categoria = filtro_form.cleaned_data["categoria"]
+                if categoria:
+                    insumos = insumos.filter(categoria=categoria)
 
         return render(
             request,
@@ -27,6 +31,7 @@ def lista_insumos(request):
                 "insumos": insumos,
                 "filtro_form": filtro_form,
                 "categoria_seleccionada": categoria is not None,
+                "offline_snapshot": offline_snapshot,
             },
         )
     return redirect("funcionarios:iniciarSesion")

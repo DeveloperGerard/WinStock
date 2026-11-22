@@ -9,11 +9,12 @@ from .models import Lote
 
 @login_required
 def lista_lotes(request):
+    offline_snapshot = request.GET.get('offline_snapshot') == '1'
     lotes = Lote.objects.all().order_by('-activo', 'nombre')
 
     # Filtros opcionales: ?q=texto&estado=activos|inactivos
-    q = request.GET.get('q', '').strip()
-    estado = request.GET.get('estado', '')
+    q = '' if offline_snapshot else request.GET.get('q', '').strip()
+    estado = '' if offline_snapshot else request.GET.get('estado', '')
 
     if q:
         lotes = lotes.filter(nombre__icontains=q)
@@ -26,6 +27,7 @@ def lista_lotes(request):
         'lotes': lotes,
         'q': q,
         'estado': estado,
+        'offline_snapshot': offline_snapshot,
     })
 
 

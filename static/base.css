@@ -64,38 +64,6 @@ header {
     border-bottom: 1px solid var(--bd);
 }
 
-.pwa-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.install-app {
-    font: inherit;
-    cursor: pointer;
-}
-
-.install-app[hidden],
-.install-ios-help[hidden] {
-    display: none;
-}
-
-.install-ios-help {
-    max-width: 240px;
-    color: var(--mut);
-    font-size: 11px;
-}
-
-.install-status {
-    max-width: 260px;
-    color: var(--mut);
-    font-size: 11px;
-}
-
-.install-status[hidden] {
-    display: none;
-}
-
 details {
     position: relative;
 }
@@ -137,6 +105,98 @@ summary {
 
 main {
     padding: 32px clamp(20px, 8vw, 155px);
+}
+
+.offline-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    border: 1px solid #ead18a;
+    border-left: 5px solid #c58a16;
+    border-radius: 12px;
+    background: linear-gradient(110deg, #fff8df, #fffdf6);
+    color: #493d12;
+    box-shadow: 0 8px 24px #493d1210;
+}
+
+.offline-banner__icon {
+    display: grid;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 12px;
+    background: #f5e8bd;
+    color: #80530a;
+}
+
+.offline-banner__icon svg {
+    width: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.offline-banner__message {
+    display: grid;
+    flex: 1;
+    gap: 3px;
+    line-height: 1.45;
+}
+
+.offline-banner__message strong {
+    font-size: 13px;
+}
+
+.offline-banner__message > span {
+    color: #685a37;
+    font-size: 12px;
+}
+
+.offline-banner__retry {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    border: 1px solid #d5bd79;
+    border-radius: 8px;
+    background: #fff;
+    color: #493d12;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.offline-banner[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 600px) {
+    .offline-banner {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px 12px;
+        padding: 14px;
+    }
+
+    .offline-banner__message {
+        min-width: 0;
+        flex-basis: calc(100% - 54px);
+    }
+
+    .offline-banner__retry {
+        margin-left: 54px;
+    }
+}
+
+body.modo-offline [data-solo-online] {
+    opacity: .5;
+    filter: grayscale(1);
+    cursor: not-allowed !important;
+    pointer-events: none;
 }
 
 .top {

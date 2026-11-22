@@ -6,18 +6,27 @@
   <meta name="theme-color" content="#173D30">
   <title>Sin conexión | WinStock</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#F6F7F3;color:#20352c;font-family:Arial,sans-serif;text-align:center}
-    main{max-width:420px;padding:36px 28px;background:#fff;border-radius:18px;box-shadow:0 12px 35px #173d3015}
-    .mark{width:64px;height:64px;margin:0 auto 20px;display:grid;place-items:center;border-radius:16px;background:#173D30;color:#fff;font-size:30px;font-weight:700}
-    h1{margin:0 0 12px;font-size:24px}p{color:#64736b;line-height:1.6;margin:0 0 24px}
-    button{border:0;border-radius:9px;padding:12px 20px;background:#173D30;color:white;font-weight:600;cursor:pointer}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 10%,#e8f1e9,transparent 35%),#f5f7f3;color:#20352c;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(100%,480px);padding:36px;background:#fff;border:1px solid #e6ebe5;border-radius:22px;box-shadow:0 20px 60px #173d3014}
+    .mark{width:58px;height:58px;margin-bottom:24px;display:grid;place-items:center;border-radius:18px;background:#e8f1e9;color:#173d30}
+    .mark svg{width:30px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+    .eyebrow{margin:0 0 8px;color:#8a671b;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:26px;letter-spacing:-.03em}
+    p{color:#64736b;line-height:1.65;margin:0 0 24px}
+    button{border:0;border-radius:10px;padding:12px 18px;background:#173d30;color:white;font:inherit;font-weight:700;cursor:pointer}
+    button:hover{background:#245541}
+    @media(max-width:480px){main{padding:28px 22px}}
   </style>
 </head>
 <body>
   <main>
-    <div class="mark">W</div>
-    <h1>No tienes conexión</h1>
-    <p>WinStock necesita Internet para consultar y actualizar la información del predio. Comprueba tu conexión e inténtalo nuevamente.</p>
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M2 8.8A15.7 15.7 0 0 1 22 8.2M5.5 12.3a10.5 10.5 0 0 1 13-.2M9.1 15.9a5.3 5.3 0 0 1 5.8-.1M12 20h.01M3 3l18 18" /></svg>
+    </div>
+    <p class="eyebrow">Modo sin conexión</p>
+    <h1>Esta pantalla necesita internet</h1>
+    <p>Las consultas guardadas siguen disponibles desde el menú. Si aún no tienes copias, conéctate, inicia sesión y abre esas secciones para guardarlas. Esta acción requiere conexión; vuelve a intentarlo cuando la red esté disponible.</p>
     <button onclick="window.location.reload()">Volver a intentar</button>
   </main>
 </body>

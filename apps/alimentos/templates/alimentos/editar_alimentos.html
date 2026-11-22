@@ -15,7 +15,7 @@
         <h2>Administrar alimentos</h2>
         <p>Edita los datos o deshabilita los alimentos que ya no se utilizan.</p>
       </div>
-      <a class="alimentos-button alimentos-button-primary" href="{% url 'alimentos:crearalimentos' %}">Registrar alimento</a>
+      <a class="alimentos-button alimentos-button-primary" href="{% url 'alimentos:crearalimentos' %}" data-solo-online>Registrar alimento</a>
     </div>
 
     <div class="alimentos-table-wrapper">
@@ -42,11 +42,11 @@
               </td>
               <td>
                 <div class="alimentos-actions">
-                  <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:modificar_alimentos' alimento.id %}">Modificar</a>
+                  <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:modificar_alimentos' alimento.id %}" data-solo-online>Modificar</a>
                   {% if alimento.estado %}
-                    <form class="alimentos-inline-form" method="post" action="{% url 'alimentos:deshabilitar_alimentos' alimento.id %}">
+                    <form class="alimentos-inline-form" method="post" action="{% url 'alimentos:deshabilitar_alimentos' alimento.id %}" data-solo-online>
                       {% csrf_token %}
-                      <button class="alimentos-button alimentos-button-danger" type="submit">Deshabilitar</button>
+                      <button class="alimentos-button alimentos-button-danger" type="submit" data-solo-online>Deshabilitar</button>
                     </form>
                   {% endif %}
                 </div>

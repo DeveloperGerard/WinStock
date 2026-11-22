@@ -6,28 +6,38 @@
 {% block extra_head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
+  {% if offline_snapshot %}
+    <meta name="winstock-offline-snapshot" content="true">
+  {% endif %}
 {% endblock %}
 
 {% block content %}
   <section class="alimentos-page">
     <div class="alimentos-heading">
       <div>
-        <h2>Registrar alimento</h2>
-        <p>Agrega un alimento y consulta los registros existentes.</p>
+        {% if offline_snapshot %}
+          <h2>Alimentos registrados</h2>
+          <p>Consulta los alimentos guardados antes de quedar sin conexión.</p>
+        {% else %}
+          <h2>Registrar alimento</h2>
+          <p>Agrega un alimento y consulta los registros existentes.</p>
+        {% endif %}
       </div>
       <div class="alimentos-actions">
-        <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">Administrar</a>
+        <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}" data-solo-online>Administrar</a>
         <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:quedastock' %}">Ver stock</a>
       </div>
     </div>
 
-    <div class="alimentos-card">
-      <form class="alimentos-form" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="alimentos-button alimentos-button-primary" type="submit">Guardar alimento</button>
-      </form>
-    </div>
+    {% if not offline_snapshot %}
+      <div class="alimentos-card">
+        <form class="alimentos-form" method="post" data-solo-online>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="alimentos-button alimentos-button-primary" type="submit" data-solo-online>Guardar alimento</button>
+        </form>
+      </div>
+    {% endif %}
 
     <div class="alimentos-section-heading">
       <h2>Alimentos registrados</h2>

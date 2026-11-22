@@ -17,7 +17,7 @@
 		</div>
 	</div>
 
-	<form class="registro-insumo__form" method="post">
+	<form class="registro-insumo__form" method="post" data-solo-online>
 		{% csrf_token %}
 		{{ form.non_field_errors }}
 
@@ -49,7 +49,7 @@
 
 		<div class="registro-insumo__actions">
 			<a class="btn" href="{% url 'ganado:lotes' %}">Cancelar</a>
-			<button class="registro-insumo__submit" type="submit">Guardar lote</button>
+			<button class="registro-insumo__submit" type="submit" data-solo-online>Guardar lote</button>
 		</div>
 	</form>
 </section>

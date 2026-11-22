@@ -6,11 +6,23 @@ from .forms import RegistroForm, CrearFuncionarioForm, EditarFuncionarioForm, Lo
 from django.http import HttpResponse
 from .models import Funcionario
 from .decorators import rol_requerido
+from apps.alimentos.forms import AlimentoForm
+from apps.alimentos.models import Alimento
 # Create your views here.
 
 def inicio(request):
     if request.user.is_authenticated:
-        return render(request,"inicio.html")
+        alimentos = Alimento.objects.order_by("nombre")
+        offline_snapshot = request.GET.get("offline_snapshot") == "1"
+        return render(
+            request,
+            "alimentos/alimentos.html",
+            {
+                "alimentos": alimentos,
+                "form": None if offline_snapshot else AlimentoForm(),
+                "offline_snapshot": offline_snapshot,
+            },
+        )
     return redirect("funcionarios:iniciarSesion")
 
 """
@@ -39,7 +51,10 @@ def cerrarSesion(request):
 @rol_requerido("adm")
 def cuentas(request):
     funcionarios = Funcionario.objects.exclude(id=request.user.id)
-    return render(request,"cuentas.html",{"funcionarios":funcionarios})
+    return render(request, "cuentas.html", {
+        "funcionarios": funcionarios,
+        "offline_snapshot": request.GET.get("offline_snapshot") == "1",
+    })
 
 
 @rol_requerido("adm")
