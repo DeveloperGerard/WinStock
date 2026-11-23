@@ -3,6 +3,7 @@
 {% block title %}Raciones{% endblock %}
 {% block page_title %}Raciones{% endblock %}
 {% block extra_head %}
+  {{ block.super }}
   {% if offline_snapshot %}<meta name="winstock-offline-snapshot" content="true">{% endif %}
 {% endblock %}
 
@@ -12,17 +13,29 @@
   <!-- Encabezado -->
   <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-2 mb-4">
     <div>
-      <h2 class="h3 fw-bold mb-1">{% if offline_snapshot %}Historial de raciones{% else %}Registrar ración diaria</h2>
-      {% if offline_snapshot %}Consulta las últimas raciones guardadas antes de quedar sin conexión.{% else %}Registra los alimentos utilizados por lote y turno. El stock se descuenta automáticamente al guardar.{% endif %}</p>
+      <h1 class="h3 fw-bold mb-1">
+        {% if offline_snapshot %}Historial de raciones{% else %}Registrar ración diaria{% endif %}
+      </h1>
+      <p class="text-secondary mb-0">
+        {% if offline_snapshot %}
+          Consulta las últimas raciones guardadas antes de quedar sin conexión.
+        {% else %}
+          Registra los alimentos utilizados por lote y turno. El stock se descuenta automáticamente al guardar.
+        {% endif %}
+      </p>
     </div>
-    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fw-semibold px-3 py-2 align-self-start text-wrap">
-      <i class="bi bi-arrow-repeat me-1"></i>Descuento automático de inventario
-    </span>
+    {% if not offline_snapshot %}
+      <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fw-semibold px-3 py-2 align-self-start text-wrap">
+        <i class="bi bi-arrow-repeat me-1"></i>Descuento automático de inventario
+      </span>
+    {% endif %}
   </div>
+
+  {% if not offline_snapshot %}
   <!-- Formulario -->
-  <div class="card mb-4 bg-white">
+  <div class="card mb-4">
     <div class="card-body p-3 p-md-4">
-      <form method="post" id="racion-form" novalidate>
+      <form method="post" id="racion-form" data-solo-online>
         {% csrf_token %}
 
         <h2 class="h5 fw-semibold mb-3">Datos de la ración</h2>
@@ -31,20 +44,16 @@
           <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
         {% endif %}
 
-  {% if not offline_snapshot %}
-  <div class="raciones-card">
-    <form method="post" id="racion-form" class="raciones-form" data-solo-online>
-      {% csrf_token %}
-      <div class="raciones-section-title"><h3>Datos de la ración</h3></div>
-      {% if form.non_field_errors %}<div class="raciones-errors">{{ form.non_field_errors }}</div>{% endif %}
-      <div class="raciones-fields">
-        {% for field in form %}
-          <div class="raciones-field">
-            {{ field.label_tag }}{{ field }}
-            {% for error in field.errors %}<small class="raciones-errors">{{ error }}</small>{% endfor %}
-          </div>
-        {% endfor %}
-      </div>
+        <div class="row g-3 mb-4">
+          {% for field in form %}
+            <div class="col-12 col-sm-6 col-lg-4 campo">
+              <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+          {% endfor %}
+        </div>
 
         <hr class="my-4">
 
@@ -97,7 +106,7 @@
         </div>
 
         <div class="d-grid d-sm-flex justify-content-sm-end mt-4">
-          <button class="btn btn-ws btn-lg" type="submit">
+          <button class="btn btn-ws btn-lg" type="submit" data-solo-online>
             <i class="bi bi-check2-circle me-1"></i>Guardar ración y descontar stock
           </button>
         </div>
@@ -110,9 +119,9 @@
   <h2 class="h5 fw-semibold mb-3">Últimas raciones registradas</h2>
   <div class="card">
     <div class="table-responsive">
-      <table class="table table-stipped table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
-          <tr class="text-uppercase small text-secondary">
+          <tr>
             <th class="ps-3">Fecha</th>
             <th>Turno</th>
             <th>Lote</th>
@@ -136,29 +145,67 @@
       </table>
     </div>
   </div>
-</section>
+
+</div>
 
 {% if not offline_snapshot %}
-  <template id="detalle-empty-form">
-    <div class="raciones-detail-row">
-      <div class="raciones-field"><label for="id_detalles-__prefix__-alimento">Alimento</label>{{ formset.empty_form.alimento }}</div>
-      <div class="raciones-field"><label for="id_detalles-__prefix__-kg">Cantidad a utilizar</label>{{ formset.empty_form.kg }}</div>
-      <label class="raciones-delete"><input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE"> Quitar</label>
+<!-- Plantilla para filas nuevas -->
+<template id="detalle-empty-form">
+  <div class="detalle-row border rounded-3 bg-body-tertiary p-3 mb-3">
+    <div class="row g-3 align-items-start">
+      <div class="col-12 col-md-6 campo">
+        <label for="id_detalles-__prefix__-alimento" class="form-label fw-medium">Alimento</label>
+        {{ formset.empty_form.alimento }}
+      </div>
+      <div class="col-8 col-md-4 campo">
+        <label for="id_detalles-__prefix__-kg" class="form-label fw-medium">Cantidad a utilizar</label>
+        <div class="input-group">
+          {{ formset.empty_form.kg }}
+          <span class="input-group-text">kg</span>
+        </div>
+      </div>
+      <div class="col-4 col-md-2">
+        <div class="form-label d-none d-md-block">&nbsp;</div>
+        <div class="form-check pt-md-2">
+          <input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE">
+          <label class="form-check-label" for="id_detalles-__prefix__-DELETE">Quitar</label>
+        </div>
+      </div>
     </div>
-  </template>
-  <script>
-  (function () {
-    const container = document.getElementById('detalles-container');
-    const addButton = document.getElementById('agregar-detalle');
-    const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
-    const template = document.getElementById('detalle-empty-form');
-    if (!container || !addButton || !totalForms || !template) return;
-    addButton.addEventListener('click', function () {
-      const index = Number(totalForms.value);
-      container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
-      totalForms.value = index + 1;
+  </div>
+</template>
+
+<script>
+(function () {
+  const form = document.getElementById('racion-form');
+  const container = document.getElementById('detalles-container');
+  const addButton = document.getElementById('agregar-detalle');
+  const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+  const template = document.getElementById('detalle-empty-form');
+  if (!form || !container || !addButton || !totalForms || !template) return;
+
+  // Aplica clases de Bootstrap a los campos que genera Django.
+  function estilizar(root) {
+    root.querySelectorAll('select').forEach((el) => el.classList.add('form-select'));
+    root.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea')
+      .forEach((el) => el.classList.add('form-control'));
+    root.querySelectorAll('input[type=checkbox]').forEach((el) => el.classList.add('form-check-input'));
+    root.querySelectorAll('.campo').forEach((campo) => {
+      if (campo.querySelector('.invalid-feedback')) {
+        campo.querySelectorAll('.form-control, .form-select').forEach((c) => c.classList.add('is-invalid'));
+      }
     });
-  })();
-  </script>
+  }
+
+  estilizar(form);
+
+  addButton.addEventListener('click', function () {
+    const index = Number(totalForms.value);
+    container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
+    totalForms.value = index + 1;
+    estilizar(container);
+  });
+})();
+</script>
 {% endif %}
 {% endblock %}

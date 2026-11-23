@@ -57,7 +57,9 @@
             <th class="ps-3">Nombre</th>
             <th>Categoría</th>
             <th>Cantidad</th>
-            <th class="text-end pe-3">Acciones</th>
+            {% if not offline_snapshot %}
+              <th class="text-end pe-3">Acciones</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -87,7 +89,8 @@
             </tr>
           {% empty %}
             <tr>
-              <td colspan="4" class="text-center text-secondary py-4">
+              <td colspan="{% if offline_snapshot %}3{% else %}4{% endif %}" class="text-center text-secondary py-4"
+                  class="text-center text-secondary py-4">
                 {% if categoria_seleccionada %}
                   No hay insumos en esta categoría.
                 {% else %}
