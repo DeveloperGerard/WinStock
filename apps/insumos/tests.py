@@ -4,10 +4,12 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.template.loader import render_to_string
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from django.urls import resolve, reverse
 
 from .views import InsumoDeleteView, crear_insumo, lista_insumos
+from apps.funcionarios.models import Funcionario
+from .models import Insumo
 
 
 class ListaInsumosTests(SimpleTestCase):
@@ -119,3 +121,33 @@ class InsumoDeleteViewTests(SimpleTestCase):
             reverse("insumos:lista"),
             fetch_redirect_response=False,
         )
+
+
+class InsumoTextInjectionTests(TestCase):
+    def setUp(self):
+        funcionario = Funcionario.objects.create_user(
+            rut="11111111-1",
+            password="Clave-Prueba-2026!",
+            first_name="Usuario",
+            last_name="Prueba",
+            email="insumo-xss@example.com",
+        )
+        self.client.force_login(funcionario)
+
+    def test_script_in_insumo_name_is_html_escaped(self):
+        nombre = "<script>alert(1)</script>"
+        response = self.client.post(
+            reverse("insumos:crear"),
+            {
+                "nombre": nombre,
+                "cantidad": "2",
+                "unidad": "Unidades",
+                "categoria": "",
+            },
+        )
+
+        self.assertRedirects(response, reverse("insumos:lista"))
+        self.assertTrue(Insumo.objects.filter(nombre=nombre).exists())
+        listing = self.client.get(reverse("insumos:lista"))
+        self.assertContains(listing, "&lt;script&gt;alert(1)&lt;/script&gt;")
+        self.assertNotContains(listing, "<script>alert(1)</script>")
