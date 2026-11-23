@@ -220,7 +220,7 @@
       try {
         const response = await fetch(PING_URL + '?t=' + Date.now(), {
           cache: 'no-store',
-          credentials: 'omit',
+          credentials: 'same-origin',
           signal: controller.signal
         });
         return response.ok;

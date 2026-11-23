@@ -7,7 +7,7 @@ from django.urls import reverse
 from apps.alimentos.models import Alimento, Movimientos_alimentos
 from apps.funcionarios.models import Funcionario
 from apps.lotes_ganado.models import Lote
-from .models import detalle_racion, racion_diaria
+from apps.raciones.models import Detalle_racion, Racion_diaria
 
 
 class RacionesOfflineTemplateTests(SimpleTestCase):
@@ -91,8 +91,8 @@ class RacionesStockViewTests(TestCase):
         self.assertRedirects(response, reverse("raciones:raciones"))
         self.alimento.refresh_from_db()
         self.assertEqual(self.alimento.stock, 7.50)
-        self.assertEqual(racion_diaria.objects.count(), 1)
-        self.assertEqual(detalle_racion.objects.get().kg, 2.50)
+        self.assertEqual(Racion_diaria.objects.count(), 1)
+        self.assertEqual(Detalle_racion.objects.get().kg, 2.50)
         self.assertEqual(Movimientos_alimentos.objects.get().cantidad, -2.50)
 
     def test_stock_insuficiente_no_crea_racion_ni_modifica_stock(self):
@@ -102,5 +102,5 @@ class RacionesStockViewTests(TestCase):
         self.assertContains(response, "Stock insuficiente de Avena")
         self.alimento.refresh_from_db()
         self.assertEqual(self.alimento.stock, 10.00)
-        self.assertEqual(racion_diaria.objects.count(), 0)
+        self.assertEqual(Racion_diaria.objects.count(), 0)
         self.assertEqual(Movimientos_alimentos.objects.count(), 0)
