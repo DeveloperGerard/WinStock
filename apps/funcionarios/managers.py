@@ -39,4 +39,9 @@ class FuncionarioManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("El superusuario debe tener is_superuser=True.")
 
+        from .models import Rol
+
+        rol_admin, _ = Rol.objects.get_or_create(nombre="adm")
+        extra_fields["rol"] = rol_admin
+
         return self._create_user(rut, password, **extra_fields)
