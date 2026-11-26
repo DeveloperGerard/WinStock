@@ -95,6 +95,12 @@ DATABASES = {
 AUTH_USER_MODEL = "funcionarios.Funcionario"
 LOGIN_URL = "funcionarios:iniciarSesion"
 
+#Determina el tiempo que el navegador conserva la cookie de sesion
+SESSION_COOKIE_AGE = 15 * 60
+
+#Indicamos a django que actualice la sesion cada vez que el usuario hace una peticion al servidor restableciendo el contador
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 
 
