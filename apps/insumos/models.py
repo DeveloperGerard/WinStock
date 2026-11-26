@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.db.models import Q
 from django.core.validators import MinValueValidator
 
 # Create your models here.
@@ -34,6 +35,15 @@ class Insumo(models.Model):
         null=True,
         blank=True
         )
+    class Meta:#intrucciones adicionales para este modelo
+            constraints = [ #restricciones
+                models.CheckConstraint(
+                    condition=Q(cantidad__gte=0),
+                    name="cantidad_no_negativa"
+                )
+            ]
+    
+
 
     def __str__(self):
         return self.nombre

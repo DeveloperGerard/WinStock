@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q # Permite consutrir condiciones que django utiliza en conultas
 from django.conf import settings
 
 class Alimento(models.Model):
@@ -9,6 +10,14 @@ class Alimento(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    class Meta:#intrucciones adicionales para este modelo
+        constraints = [ #restricciones
+            models.CheckConstraint(
+                condition=Q(stock__gte=0),
+                name="stock_no_negativo"
+            )
+        ]
 
 
 class Movimientos_alimentos(models.Model):
