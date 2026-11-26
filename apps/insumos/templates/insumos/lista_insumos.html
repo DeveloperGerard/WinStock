@@ -80,6 +80,9 @@
               {% if not offline_snapshot %}
               <td class="pe-3">
                 <div class="d-flex justify-content-end gap-2 text-nowrap">
+                  <a class="btn btn-outline-ws btn-sm" href="{% url 'insumos:editar' insumo.uuid %}" data-solo-online>
+                    <i class="bi bi-pencil me-1"></i>Editar
+                  </a>
                   <a class="btn btn-outline-danger btn-sm" href="{% url 'insumos:eliminar' insumo.uuid %}" data-solo-online>
                     <i class="bi bi-trash me-1"></i>Eliminar
                   </a>

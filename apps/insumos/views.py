@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, UpdateView
 
 from .forms import FiltroCategoriaForm, InsumoForm
 from .models import Insumo
@@ -48,6 +48,16 @@ def crear_insumo(request):
         form = InsumoForm()
 
     return render(request, "insumos/crear_insumo.html", {"form": form})
+
+
+class InsumoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Insumo
+    form_class = InsumoForm
+    template_name = "insumos/editar_insumo.html"
+    success_url = reverse_lazy("insumos:lista")
+    login_url = "funcionarios:iniciarSesion"
+    slug_field = "uuid"
+    slug_url_kwarg = "uuid"
 
 
 class InsumoDeleteView(LoginRequiredMixin, DeleteView):

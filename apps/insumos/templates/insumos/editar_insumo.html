@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar insumo · WinStock{% endblock %}
+{% block page_title %}Insumos{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'crear_insumo.css' %}">{% endblock %}
+
+{% block content %}
+<section class="registro-insumo">
+  <div class="registro-insumo__intro">
+    <div>
+      <h2>Editar insumo</h2>
+      <p>Actualiza los datos del insumo seleccionado.</p>
+    </div>
+    <a class="btn" href="{% url 'insumos:lista' %}">Volver a insumos</a>
+  </div>
+
+  <form class="registro-insumo__form" method="post" data-solo-online>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="registro-insumo__fields">
+      {% for campo in form %}
+        <div class="registro-insumo__field{% if campo.errors %} registro-insumo__field--error{% endif %}">
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+          {% for error in campo.errors %}
+            <small class="registro-insumo__error">{{ error }}</small>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="registro-insumo__actions">
+      <button class="registro-insumo__submit" type="submit" data-solo-online>Guardar cambios</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
