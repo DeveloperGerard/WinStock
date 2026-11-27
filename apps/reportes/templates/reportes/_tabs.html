@@ -1,0 +1,10 @@
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'inventario' %}active{% endif %}" href="{% url 'reportes:index' %}">Inventario
+            actual</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'movimientos' %}active{% endif %}" href="{% url 'reportes:movimientos' %}"
+            data-solo-online>Movimientos</a>
+    </li>
+</ul>

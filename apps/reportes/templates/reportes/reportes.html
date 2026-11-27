@@ -11,55 +11,54 @@
 <div class="container-xl px-0">
 
   <!-- Encabezado -->
-  <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-4">
+  <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-3">
     <div>
-      <h1 class="h3 fw-bold mb-1">Reporte actual del predio</h1>
+      <h1 class="h3 fw-bold mb-1">Inventario actual del predio</h1>
       <p class="text-secondary mb-0"><i class="bi bi-clock me-1"></i>Generado el {{ fecha_generacion|date:"d/m/Y H:i" }}</p>
     </div>
     {% if not offline_snapshot %}
-    <div class="d-flex flex-wrap gap-2">
-      <a class="btn btn-outline-secondary" href="{% url 'reportes:index' %}">
-        <i class="bi bi-x-circle me-1"></i>Limpiar filtros
-      </a>
-      <a class="btn btn-ws" href="{% url 'reportes:index' %}?alimento_q={{ filtro_alimento|urlencode }}&amp;funcionario_q={{ filtro_funcionario|urlencode }}&amp;insumo_q={{ filtro_insumo|urlencode }}&amp;categoria={{ categoria_seleccionada|urlencode }}&amp;export=xlsx" data-solo-online>
-        <i class="bi bi-file-earmark-excel me-1"></i>Exportar Excel
-      </a>
-    </div>
+    <a class="btn btn-ws align-self-start" data-solo-online
+       href="{% url 'reportes:index' %}?alimento_q={{ filtro_alimento|urlencode }}&amp;insumo_q={{ filtro_insumo|urlencode }}&amp;categoria={{ categoria_seleccionada|urlencode }}&amp;export=xlsx">
+      <i class="bi bi-file-earmark-excel me-1"></i>Exportar Excel
+    </a>
     {% endif %}
   </div>
+
+  {% include "reportes/_tabs.html" with tab="inventario" %}
 
   <!-- Filtros -->
   {% if not offline_snapshot %}
   <div class="card mb-4">
     <div class="card-body p-3 p-md-4">
       <form method="get" class="row g-3 align-items-end" data-solo-online>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-3">
           <label for="reporte-alimento" class="form-label fw-medium">Buscar alimento</label>
           <input id="reporte-alimento" type="search" name="alimento_q" value="{{ filtro_alimento }}" class="form-control" placeholder="Nombre del alimento">
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
-          <label for="reporte-funcionario" class="form-label fw-medium">Buscar funcionario</label>
-          <input id="reporte-funcionario" type="search" name="funcionario_q" value="{{ filtro_funcionario }}" class="form-control" placeholder="Nombre, RUT o correo">
+        <div class="col-12 col-md-3">
+          <label for="reporte-estado" class="form-label fw-medium">Estado de alimentos</label>
+          <select id="reporte-estado" name="estado" class="form-select">
+            <option value="todos" {% if estado == "todos" %}selected{% endif %}>Todos</option>
+            <option value="activos" {% if estado == "activos" %}selected{% endif %}>Activos</option>
+            <option value="inactivos" {% if estado == "inactivos" %}selected{% endif %}>Inactivos</option>
+          </select>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-3">
           <label for="reporte-insumo" class="form-label fw-medium">Buscar insumo</label>
           <input id="reporte-insumo" type="search" name="insumo_q" value="{{ filtro_insumo }}" class="form-control" placeholder="Nombre o categoría">
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-3">
           <label for="reporte-categoria" class="form-label fw-medium">Categoría de insumos</label>
           <select id="reporte-categoria" name="categoria" class="form-select">
             <option value="">Todas las categorías</option>
             {% for categoria in categorias %}
-              <option value="{{ categoria.pk }}" {% if categoria_seleccionada == categoria.pk|stringformat:"s" %}selected{% endif %}>
-                {{ categoria.nombre }}
-              </option>
+              <option value="{{ categoria.pk }}" {% if categoria_seleccionada == categoria.pk|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre }}</option>
             {% endfor %}
           </select>
         </div>
-        <div class="col-12 d-grid d-sm-flex justify-content-sm-end">
-          <button class="btn btn-ws" type="submit" data-solo-online>
-            <i class="bi bi-funnel me-1"></i>Filtrar
-          </button>
+        <div class="col-12 d-flex gap-2 justify-content-sm-end">
+          <a class="btn btn-outline-secondary" href="{% url 'reportes:index' %}">Limpiar</a>
+          <button class="btn btn-ws" type="submit"><i class="bi bi-funnel me-1"></i>Filtrar</button>
         </div>
       </form>
     </div>
@@ -68,31 +67,21 @@
 
   <!-- Resumen -->
   <div class="row g-3 mb-4">
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-sm-6 col-xl-3">
       <article class="card h-100" style="border-top: 3px solid #173D30;">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <span class="text-secondary">Alimentos activos</span>
             <i class="bi bi-box-seam text-secondary fs-5"></i>
           </div>
-          <div class="display-6 fw-bold lh-1 my-2">{{ alimentos|length }}</div>
-          <small class="text-secondary">Disponibles en la gestión actual</small>
+          <div class="display-6 fw-bold lh-1 my-2">{{ alimentos_activos }}</div>
+          <small class="{% if alimentos_sin_stock %}text-danger fw-medium{% else %}text-secondary{% endif %}">
+            {{ alimentos_sin_stock }} sin stock · {{ alimentos_inactivos }} inactivos
+          </small>
         </div>
       </article>
     </div>
-    <div class="col-12 col-md-4">
-      <article class="card h-100" style="border-top: 3px solid #173D30;">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <span class="text-secondary">Funcionarios activos</span>
-            <i class="bi bi-people text-secondary fs-5"></i>
-          </div>
-          <div class="display-6 fw-bold lh-1 my-2">{{ funcionarios|length }}</div>
-          <small class="text-secondary">Cuentas habilitadas</small>
-        </div>
-      </article>
-    </div>
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-sm-6 col-xl-3">
       <article class="card h-100" style="border-top: 3px solid #173D30;">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
@@ -101,6 +90,30 @@
           </div>
           <div class="display-6 fw-bold lh-1 my-2">{{ insumos|length }}</div>
           <small class="{% if insumos_sin_stock %}text-danger fw-medium{% else %}text-secondary{% endif %}">{{ insumos_sin_stock }} sin stock</small>
+        </div>
+      </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card h-100" style="border-top: 3px solid #173D30;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <span class="text-secondary">Raciones del mes</span>
+            <i class="bi bi-basket text-secondary fs-5"></i>
+          </div>
+          <div class="display-6 fw-bold lh-1 my-2">{{ raciones_mes }}</div>
+          <small class="text-secondary">Desde el {{ inicio_mes|date:"d/m" }}</small>
+        </div>
+      </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card h-100" style="border-top: 3px solid #173D30;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <span class="text-secondary">Movimientos del mes</span>
+            <i class="bi bi-arrow-left-right text-secondary fs-5"></i>
+          </div>
+          <div class="display-6 fw-bold lh-1 my-2">{{ movimientos_mes }}</div>
+          <small class="text-secondary">Entradas y salidas de alimentos</small>
         </div>
       </article>
     </div>
@@ -119,56 +132,25 @@
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
-            <tr><th class="ps-3">Nombre</th><th>Stock actual (kg)</th><th>Estado</th></tr>
+            <tr><th class="ps-3">Nombre</th><th class="text-end">Stock actual (kg)</th><th class="pe-3">Estado</th></tr>
           </thead>
           <tbody>
             {% for alimento in alimentos %}
-              <tr>
+              <tr {% if not alimento.estado %}class="text-secondary"{% endif %}>
                 <td class="ps-3 fw-medium">{{ alimento.nombre }}</td>
-                <td class="text-nowrap">{{ alimento.stock|floatformat:"-2g" }} <span class="text-secondary small">kg</span></td>
-                <td><span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Activo</span></td>
+                <td class="text-end text-nowrap">{{ alimento.stock|floatformat:"-2g" }} <span class="text-secondary small">kg</span></td>
+                <td class="pe-3">
+                  {% if not alimento.estado %}
+                    <span class="badge text-bg-secondary">Inactivo</span>
+                  {% elif alimento.stock <= 0 %}
+                    <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">Sin stock</span>
+                  {% else %}
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Disponible</span>
+                  {% endif %}
+                </td>
               </tr>
             {% empty %}
               <tr><td colspan="3" class="text-center text-secondary py-4">No hay alimentos activos que coincidan con los filtros.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- Funcionarios -->
-  <section class="mb-4" aria-labelledby="rep-funcionarios">
-    <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
-      <div>
-        <h2 id="rep-funcionarios" class="h5 fw-semibold mb-1">Funcionarios activos</h2>
-        <p class="text-secondary small mb-0">Cuentas habilitadas y su información principal.</p>
-      </div>
-      <span class="badge rounded-pill text-bg-light border fs-6">{{ funcionarios|length }}</span>
-    </div>
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr><th class="ps-3">Nombre completo</th><th>RUT</th><th>Correo</th><th>Rol</th><th>Estado</th></tr>
-          </thead>
-          <tbody>
-            {% for funcionario in funcionarios %}
-              <tr>
-                <td class="ps-3 fw-medium text-nowrap">{{ funcionario.full_name }}</td>
-                <td class="text-nowrap">{{ funcionario.rut }}</td>
-                <td>{{ funcionario.email }}</td>
-                <td>
-                  {% if funcionario.rol %}
-                    <span class="badge text-bg-light border fw-medium">{{ funcionario.rol }}</span>
-                  {% else %}
-                    <span class="text-secondary fst-italic">Sin rol</span>
-                  {% endif %}
-                </td>
-                <td><span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">Activo</span></td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="5" class="text-center text-secondary py-4">No hay funcionarios activos que coincidan con los filtros.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -189,7 +171,7 @@
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
-            <tr><th class="ps-3">Nombre</th><th>Categoría</th><th>Cantidad</th><th>Unidad</th><th>Estado</th></tr>
+            <tr><th class="ps-3">Nombre</th><th>Categoría</th><th class="text-end">Cantidad</th><th>Unidad</th><th class="pe-3">Estado</th></tr>
           </thead>
           <tbody>
             {% for insumo in insumos %}
@@ -202,9 +184,9 @@
                     <span class="text-secondary fst-italic">Sin categoría</span>
                   {% endif %}
                 </td>
-                <td class="fw-semibold">{{ insumo.cantidad }}</td>
+                <td class="text-end fw-semibold">{{ insumo.cantidad }}</td>
                 <td class="text-secondary">{{ insumo.get_unidad_display }}</td>
-                <td>
+                <td class="pe-3">
                   {% if insumo.cantidad == 0 %}
                     <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">Sin stock</span>
                   {% else %}
