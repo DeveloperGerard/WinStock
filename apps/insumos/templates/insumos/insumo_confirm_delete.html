@@ -1,24 +1,39 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}Eliminar insumo · WinStock{% endblock %}
+{% block title %}Eliminar insumo{% endblock %}
 {% block page_title %}Insumos{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'insumos.css' %}">{% endblock %}
 
 {% block content %}
-<section class="insumo-delete-confirmation">
-  <h2>Eliminar insumo</h2>
-  <p>¿Estás seguro de que deseas eliminar <strong>{{ object.nombre }}</strong>?</p>
-  <p class="insumo-delete-confirmation__warning" role="alert">
-    Esta acción no se puede deshacer.
-  </p>
+<div class="mx-auto" style="max-width: 620px;">
+  <div class="card">
+    <div class="card-body p-4">
 
-  <form method="post" data-solo-online>
-    {% csrf_token %}
-    <div class="insumo-delete-confirmation__actions">
-      <button class="btn insumo-delete-confirmation__submit" type="submit" data-solo-online>Sí, eliminar</button>
-      <a class="btn" href="{% url 'insumos:lista' %}">Cancelar</a>
+      <div class="d-flex align-items-start gap-3 mb-3">
+        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-subtle text-danger flex-shrink-0" style="width:48px;height:48px;">
+          <i class="bi bi-trash fs-4"></i>
+        </span>
+        <div>
+          <h1 class="h4 fw-bold mb-1">Eliminar insumo</h1>
+          <p class="mb-0">¿Estás seguro de que deseas eliminar <strong>{{ object.nombre }}</strong>?</p>
+        </div>
+      </div>
+
+      <div class="alert alert-warning d-flex gap-2 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <div>Esta acción no se puede deshacer.</div>
+      </div>
+
+      <form method="post" data-solo-online>
+        {% csrf_token %}
+        <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'insumos:lista' %}">Cancelar</a>
+          <button class="btn btn-danger" type="submit" data-solo-online>
+            <i class="bi bi-trash me-1"></i>Sí, eliminar
+          </button>
+        </div>
+      </form>
+
     </div>
-  </form>
-</section>
+  </div>
+</div>
 {% endblock %}

@@ -10,34 +10,27 @@ from django.contrib import messages
 
 from apps.alimentos.models import Alimento
 from apps.raciones.models import Racion_diaria
+from apps.inventarios.acceso import inventario_requerido, claves_permitidas
 
 @login_required
 def inicio(request):
-    if request.user.is_authenticated:
-        offline_snapshot = request.GET.get("offline_snapshot") == "1"
-        ultimas_raciones = (
-            Racion_diaria.objects
-            .select_related("lote_id", "usuario_id")
-            .order_by("-fecha", "-id")[:5]
-        )
-        return render(
-            request,
-            "inicio.html",
-            {
-                "offline_snapshot": offline_snapshot,
-                "ultimas_raciones": ultimas_raciones,
-            },
-        )
-    return redirect("funcionarios:iniciarSesion")
+    claves = claves_permitidas(request.user)
+    puede_raciones = {"alimentos", "lotes"} <= claves
 
-"""
-def registro(request):
-    form = RegistroForm(request.POST or None)
-    if form.is_valid():
-        login(request, form.save())
-        return redirect("funcionarios:inicio")
-    return render(request, "forms/regfunc.html", {"form": form})
-"""
+    ultimas_raciones = (
+        Racion_diaria.objects
+        .select_related("lote_id", "usuario_id")
+        .order_by("-fecha", "-id")[:5]
+        if puede_raciones else []
+    )
+
+    return render(request, "inicio.html", {
+        "ultimas_raciones": ultimas_raciones,
+        "puede_raciones": puede_raciones,
+        "offline_snapshot": request.GET.get("offline_snapshot") == "1",
+    })
+
+
 def iniciarSesion(request):
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
@@ -67,7 +60,8 @@ def crearFuncionario(request):
     form = CrearFuncionarioForm(request.POST or None)
     if form.is_valid():
         # Solo se crea la cuenta: el admin NO debe quedar logueado como el nuevo usuario
-        form.save()
+        funcionario = form.save()
+        form.guardar_inventarios(funcionario)
         return redirect("funcionarios:cuentas")
     return render(request, "registrarFunc.html", {"form": form, "modo": "crear"})
 
@@ -75,25 +69,20 @@ def crearFuncionario(request):
 @rol_requerido("adm")
 def editarFuncionario(request, uuid):
     funcionario = get_object_or_404(Funcionario, uuid=uuid)
+
+    if funcionario.is_superuser and funcionario.rut != request.user.rut:
+        messages.error(request, "No se puede editar este usuario.")
+        return redirect("funcionarios:cuentas")
+
     form = EditarFuncionarioForm(
         request.POST if request.method == "POST" else None,
         instance=funcionario,
     )
-    if funcionario.rut == request.user.rut:
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Usuario editado con exito.")
-            return redirect("funcionarios:cuentas")
-            
-    elif funcionario.is_superuser == True:
-        messages.error(request, "No se puede editar este usuario.")
+    if form.is_valid():
+        funcionario = form.save()
+        form.guardar_inventarios(funcionario)
+        messages.success(request, "Usuario editado con exito.")
         return redirect("funcionarios:cuentas")
-        
-    else:
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Usuario editado con exito.")
-            return redirect("funcionarios:cuentas")
     return render(request, "registrarFunc.html", {"form": form, "modo": "editar"})
 
 

@@ -65,22 +65,30 @@
                href="{% url 'funcionarios:inicio' %}">
               <i class="fa-solid fa-house fa-fw"></i> Inicio
             </a>
+            {% if "alimentos" in inventarios_permitidos and "lotes" in inventarios_permitidos %}
             <a class="nav-link {% if ns == 'raciones' %}active{% endif %}"
                href="{% url 'raciones:raciones' %}">
               <i class="fa-solid fa-plate-wheat fa-fw"></i> Raciones
             </a>
+            {% endif %}
+            {% if "alimentos" in inventarios_permitidos %}
             <a class="nav-link {% if ns == 'alimentos' %}active{% endif %}"
                href="{% url 'alimentos:quedastock' %}">
               <i class="fa-solid fa-wheat-awn fa-fw"></i> Alimentos
             </a>
+            {% endif %}
+            {% if "insumos" in inventarios_permitidos %}
             <a class="nav-link {% if ns == 'insumos' %}active{% endif %}"
                href="{% url 'insumos:lista' %}">
               <i class="fa-solid fa-box-open fa-fw"></i> Insumos
             </a>
+            {% endif %}
+            {% if "lotes" in inventarios_permitidos %}
             <a class="nav-link {% if ns == 'ganado' %}active{% endif %}"
                href="{% url 'ganado:lotes' %}">
               <i class="fa-solid fa-cow fa-fw"></i> Ganado
             </a>
+            {% endif %}
 
             {% if request.user.rol.nombre == "adm" %}
             <a class="nav-link {% if ns == 'reportes' %}active{% endif %}"
@@ -161,7 +169,7 @@
         </div>
       </div>
 
-      <!-- Mensajes -->
+      <!-- inicio Mensajes -->
       {% if messages %}
         {% for message in messages %}
           <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show rounded-0 mb-0" role="alert">
@@ -170,6 +178,12 @@
           </div>
         {% endfor %}
       {% endif %}
+
+      {% if user.is_authenticated and not inventarios_permitidos %}
+        <div class="small text-white-50 px-3 py-2">No tienes inventarios asignados. Consulta al administrador.</div>
+      {% endif %}
+      <!-- fin mensajes -->
+
 
       <!-- Contenido de la página -->
       <main class="app-content">

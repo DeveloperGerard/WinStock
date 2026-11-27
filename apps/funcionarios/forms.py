@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import Funcionario
 from core.validators import normalizar_rut  # ajusta la ruta a donde tengas normalizar_rut
+from apps.inventarios.models import Inventario
 
 
 class LoginForm(AuthenticationForm):
@@ -49,16 +50,35 @@ class RegistroForm(UserCreationForm):
     def clean_rut(self):
         return normalizar_rut(self.cleaned_data["rut"])
 
+class InventariosMixin:
+    """Campo 'inventarios' para formularios que usa el administrador."""
 
-class CrearFuncionarioForm(RegistroForm):
+    def _agregar_campo_inventarios(self):
+        self.fields["inventarios"] = forms.ModelMultipleChoiceField(
+            queryset=Inventario.objects.all(),
+            required=False,
+            widget=forms.CheckboxSelectMultiple,
+            label="Inventarios con acceso",
+        )
+        if self.instance.pk:
+            self.fields["inventarios"].initial = self.instance.inventarios.all()
+
+    def guardar_inventarios(self, funcionario):
+        funcionario.inventarios.set(self.cleaned_data.get("inventarios", []))
+
+class CrearFuncionarioForm(InventariosMixin, RegistroForm):
     """Alta de funcionarios hecha por un administrador: permite elegir el rol."""
 
     class Meta(RegistroForm.Meta):
         fields = RegistroForm.Meta.fields + ("rol",)
         labels = {**RegistroForm.Meta.labels, "rol": "Rol"}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._agregar_campo_inventarios()
 
-class EditarFuncionarioForm(forms.ModelForm):
+
+class EditarFuncionarioForm(InventariosMixin, forms.ModelForm):
     """Edición de datos del funcionario sin modificar su contraseña o permisos técnicos."""
 
     class Meta:
@@ -72,3 +92,7 @@ class EditarFuncionarioForm(forms.ModelForm):
             "phone_number": "Teléfono",
             "rol": "Rol",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._agregar_campo_inventarios()

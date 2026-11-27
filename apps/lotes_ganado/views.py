@@ -5,9 +5,11 @@ from django.views.decorators.http import require_POST
 
 from .forms import LoteForm
 from .models import Lote
+from apps.inventarios.acceso import inventario_requerido
 
 
 @login_required
+@inventario_requerido("lotes")
 def lista_lotes(request):
     offline_snapshot = request.GET.get('offline_snapshot') == '1'
     lotes = Lote.objects.all().order_by('-activo', 'nombre')
@@ -32,6 +34,7 @@ def lista_lotes(request):
 
 
 @login_required
+@inventario_requerido("lotes")
 def crear_lote(request):
     if request.method == 'POST':
         form = LoteForm(request.POST)
@@ -47,8 +50,8 @@ def crear_lote(request):
         'titulo': 'Nuevo lote',
     })
 
-
 @login_required
+@inventario_requerido("lotes")
 def editar_lote(request, uuid):
     lote = get_object_or_404(Lote, uuid=uuid)
 
@@ -70,6 +73,7 @@ def editar_lote(request, uuid):
 
 @login_required
 @require_POST
+@inventario_requerido("lotes")
 def cambiar_estado_lote(request, uuid):
     """Habilita o deshabilita el lote (borrado lógico)."""
     lote = get_object_or_404(Lote, uuid=uuid)
@@ -82,6 +86,7 @@ def cambiar_estado_lote(request, uuid):
 
 
 @login_required
+@inventario_requerido("lotes")
 def eliminar_lote(request, uuid):
     """Borrado real, con página de confirmación (GET) y borrado (POST)."""
     lote = get_object_or_404(Lote, uuid=uuid)

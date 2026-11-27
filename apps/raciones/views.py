@@ -10,9 +10,11 @@ from django.db.models import Prefetch, Sum
 from apps.alimentos.models import Alimento, Movimientos_alimentos
 from .forms import RacionForm, DetalleRacionFormSet, HistorialFiltroForm
 from .models import Detalle_racion, Racion_diaria
+from apps.inventarios.acceso import inventario_requerido
 
 
 @login_required
+@inventario_requerido("alimentos", "lotes")
 def raciones(request):
     offline_snapshot = request.GET.get("offline_snapshot") == "1"
     if request.method == "POST":
@@ -92,6 +94,7 @@ def raciones(request):
 
 
 @login_required
+@inventario_requerido("alimentos", "lotes")
 def historial_raciones(request):
     form = HistorialFiltroForm(request.GET or None)
 

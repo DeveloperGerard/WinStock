@@ -36,6 +36,20 @@
           {% for campo in form %}
             {% if campo.is_hidden %}
               {{ campo }}
+            {% elif campo.name == "inventarios" %}
+              <div class="col-12 campo">
+                <label class="form-label fw-medium">{{ campo.label }}</label>
+                <div class="border rounded-3 p-3 bg-body-tertiary">
+                  {% for check in campo %}
+                    <div class="form-check">
+                      {{ check.tag }}
+                      <label class="form-check-label" for="{{ check.id_for_label }}">{{ check.choice_label }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                <div class="form-text">Los administradores acceden a todos los inventarios sin necesitar asignación.</div>
+                {% for error in campo.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
             {% else %}
               <div class="col-12 col-md-6 campo">
                 <label for="{{ campo.id_for_label }}" class="form-label fw-medium">{{ campo.label }}</label>

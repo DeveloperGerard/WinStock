@@ -6,10 +6,9 @@ from django.views.generic import DeleteView, UpdateView
 
 from .forms import FiltroCategoriaForm, InsumoForm
 from .models import Insumo
-# Create your views here.
+from apps.inventarios.acceso import inventario_requerido
 
-
-
+@inventario_requerido("insumos")
 def lista_insumos(request):
     if request.user.is_authenticated:
         insumos = Insumo.objects.select_related("categoria").order_by("nombre")
@@ -36,8 +35,8 @@ def lista_insumos(request):
         )
     return redirect("funcionarios:iniciarSesion")
 
-
 @login_required(login_url="funcionarios:iniciarSesion")
+@inventario_requerido("insumos")
 def crear_insumo(request):
     if request.method == "POST":
         form = InsumoForm(request.POST)
@@ -49,7 +48,6 @@ def crear_insumo(request):
 
     return render(request, "insumos/crear_insumo.html", {"form": form})
 
-
 class InsumoUpdateView(LoginRequiredMixin, UpdateView):
     model = Insumo
     form_class = InsumoForm
@@ -58,7 +56,6 @@ class InsumoUpdateView(LoginRequiredMixin, UpdateView):
     login_url = "funcionarios:iniciarSesion"
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
-
 
 class InsumoDeleteView(LoginRequiredMixin, DeleteView):
     model = Insumo

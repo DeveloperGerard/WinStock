@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.reportes',
     'apps.lotes_ganado',
     'apps.raciones',
+    'apps.inventarios',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "apps.inventarios.context_processors.inventarios_permitidos",
             ],
         },
     },
