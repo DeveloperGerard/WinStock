@@ -1,30 +1,78 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}Modificar {{ alimento.nombre }} | WinStock{% endblock %}
+{% block title %}Modificar {{ alimento.nombre }}{% endblock %}
 {% block page_title %}Modificar alimento{% endblock %}
-{% block extra_head %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'alimentos/alimentos.css' %}">
-{% endblock %}
 
 {% block content %}
-  <section class="alimentos-page">
-    <div class="alimentos-heading">
-      <div>
-        <h2>Modificar alimento</h2>
-        <p>Actualiza los datos de {{ alimento.nombre }}.</p>
-      </div>
-    </div>
-    <div class="alimentos-card alimentos-form-card">
-      <form class="alimentos-form" method="post" data-solo-online>
+<div class="mx-auto" style="max-width: 720px;">
+
+  <!-- Encabezado -->
+  <div class="mb-4">
+    <h1 class="h3 fw-bold mb-1">Modificar alimento</h1>
+    <p class="text-secondary mb-0">Actualiza los datos de {{ alimento.nombre }}.</p>
+  </div>
+
+  <!-- Formulario -->
+  <div class="card">
+    <div class="card-body p-3 p-md-4">
+      <form method="post" id="alimento-form" data-solo-online>
         {% csrf_token %}
-        {{ form.as_p }}
-        <div class="alimentos-actions">
-          <button class="alimentos-button alimentos-button-primary" type="submit" data-solo-online>Guardar cambios</button>
-          <a class="alimentos-button alimentos-button-secondary" href="{% url 'alimentos:editar_alimentos' %}">Cancelar</a>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          {% for field in form %}
+            {% if field.is_hidden %}
+              {{ field }}
+            {% else %}
+              <div class="col-12 campo">
+                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                {% if field.name == 'stock' %}
+                  <div class="input-group">
+                    {{ field }}
+                    <span class="input-group-text">kg</span>
+                  </div>
+                {% else %}
+                  {{ field }}
+                {% endif %}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex flex-column-reverse flex-sm-row justify-content-sm-end gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'alimentos:editar_alimentos' %}">Cancelar</a>
+          <button class="btn btn-ws" type="submit" data-solo-online>
+            <i class="bi bi-check2 me-1"></i>Guardar cambios
+          </button>
         </div>
       </form>
     </div>
-  </section>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('alimento-form');
+  if (!form) return;
+
+  // Aplica clases de Bootstrap a los campos que genera Django.
+  form.querySelectorAll('select').forEach((el) => el.classList.add('form-select'));
+  form.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea')
+    .forEach((el) => el.classList.add('form-control'));
+  form.querySelectorAll('input[type=checkbox]').forEach((el) => el.classList.add('form-check-input'));
+  form.querySelectorAll('.campo').forEach((campo) => {
+    if (campo.querySelector('.invalid-feedback')) {
+      campo.querySelectorAll('.form-control, .form-select').forEach((c) => c.classList.add('is-invalid'));
+    }
+  });
+})();
+</script>
 {% endblock %}

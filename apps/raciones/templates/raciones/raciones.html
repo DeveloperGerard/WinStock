@@ -48,7 +48,16 @@
           {% for field in form %}
             <div class="col-12 col-sm-6 col-lg-4 campo">
               <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-              {{ field }}
+              {% if field.name == "fecha" %}
+                  <div class="input-group">
+                    {{ field }}
+                    <button type="button" class="btn btn-outline-ws" id="fecha-hoy" data-solo-online>
+                      <i class="bi bi-calendar-check me-1"></i>Hoy
+                    </button>
+                  </div>
+                {% else %}
+                  {{ field }}
+              {% endif %}
               {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
               {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
             </div>
@@ -81,6 +90,7 @@
                 <div class="col-12 col-md-6 campo">
                   <label for="{{ detalle.alimento.id_for_label }}" class="form-label fw-medium">{{ detalle.alimento.label }}</label>
                   {{ detalle.alimento }}
+                  <div class="form-text stock-info" aria-live="polite"></div>
                   {% for error in detalle.alimento.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                 </div>
                 <div class="col-8 col-md-4 campo">
@@ -91,15 +101,13 @@
                   </div>
                   {% for error in detalle.kg.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                 </div>
-                {% if detalle.DELETE %}
                 <div class="col-4 col-md-2">
                   <div class="form-label d-none d-md-block">&nbsp;</div>
-                  <div class="form-check pt-md-2">
-                    {{ detalle.DELETE }}
-                    <label class="form-check-label" for="{{ detalle.DELETE.id_for_label }}">Quitar</label>
-                  </div>
+                  <button type="button" class="btn btn-outline-danger w-100 quitar-detalle" data-solo-online
+                          title="Quitar este alimento">
+                    <i class="bi bi-trash me-1"></i>Quitar
+                  </button>
                 </div>
-                {% endif %}
               </div>
             </div>
           {% endfor %}
@@ -116,7 +124,12 @@
   {% endif %}
 
   <!-- Historial -->
-  <h2 class="h5 fw-semibold mb-3">Últimas raciones registradas</h2>
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="h5 fw-semibold mb-0">Últimas raciones registradas</h2>
+    <a href="{% url 'raciones:historial' %}" class="btn btn-outline-ws btn-sm" data-solo-online>
+      <i class="bi bi-clock-history me-1"></i>Ver historial completo
+    </a>
+  </div>
   <div class="card">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
@@ -156,6 +169,7 @@
       <div class="col-12 col-md-6 campo">
         <label for="id_detalles-__prefix__-alimento" class="form-label fw-medium">Alimento</label>
         {{ formset.empty_form.alimento }}
+        <div class="form-text stock-info" aria-live="polite"></div>
       </div>
       <div class="col-8 col-md-4 campo">
         <label for="id_detalles-__prefix__-kg" class="form-label fw-medium">Cantidad a utilizar</label>
@@ -166,10 +180,10 @@
       </div>
       <div class="col-4 col-md-2">
         <div class="form-label d-none d-md-block">&nbsp;</div>
-        <div class="form-check pt-md-2">
-          <input type="checkbox" name="detalles-__prefix__-DELETE" id="id_detalles-__prefix__-DELETE">
-          <label class="form-check-label" for="id_detalles-__prefix__-DELETE">Quitar</label>
-        </div>
+        <button type="button" class="btn btn-outline-danger w-100 quitar-detalle" data-solo-online
+                title="Quitar este alimento">
+          <i class="bi bi-trash me-1"></i>Quitar
+        </button>
       </div>
     </div>
   </div>
@@ -199,12 +213,110 @@
 
   estilizar(form);
 
+  const MIN_FILAS = 1;
+
+  function filas() {
+    return container.querySelectorAll('.detalle-row');
+  }
+
+  // Renumera name/id/for de cada fila para que los índices sean 0..n-1 sin huecos.
+  function renumerar() {
+    filas().forEach((fila, i) => {
+      fila.querySelectorAll('[name], [id], label[for]').forEach((el) => {
+        ['name', 'id', 'for'].forEach((attr) => {
+          const valor = el.getAttribute(attr);
+          if (valor) {
+            el.setAttribute(attr, valor.replace(/detalles-\d+-/, `detalles-${i}-`));
+          }
+        });
+      });
+    });
+    totalForms.value = filas().length;
+    actualizarBotones();
+  }
+
+  function actualizarBotones() {
+    const solaUna = filas().length <= MIN_FILAS;
+    container.querySelectorAll('.quitar-detalle').forEach((b) => {
+      b.disabled = solaUna;
+    });
+  }
+
   addButton.addEventListener('click', function () {
-    const index = Number(totalForms.value);
+    const index = filas().length;
     container.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__prefix__', index));
-    totalForms.value = index + 1;
     estilizar(container);
+    renumerar();
   });
+
+  // Delegación: funciona para filas existentes y nuevas.
+  container.addEventListener('click', function (e) {
+    const boton = e.target.closest('.quitar-detalle');
+    if (!boton || filas().length <= MIN_FILAS) return;
+    boton.closest('.detalle-row').remove();
+    renumerar();
+  });
+
+  const fechaInput = document.getElementById('id_fecha');
+  const hoyButton = document.getElementById('fecha-hoy');
+  if (fechaInput && hoyButton) {
+    hoyButton.addEventListener('click', function () {
+      const d = new Date();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      fechaInput.value = `${d.getFullYear()}-${mm}-${dd}`;
+      fechaInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  }
+
+  function fmt(n) {
+    return n.toLocaleString('es-CL', { maximumFractionDigits: 2 });
+  }
+
+  function actualizarStock(fila) {
+    const select = fila.querySelector('select');
+    const kgInput = fila.querySelector('input[name$="-kg"]');
+    const info = fila.querySelector('.stock-info');
+    if (!select || !info) return;
+
+    const opcion = select.options[select.selectedIndex];
+    const stockAttr = opcion ? opcion.dataset.stock : undefined;
+
+    info.classList.remove('text-danger', 'text-warning', 'text-success', 'text-secondary');
+
+    if (stockAttr === undefined || stockAttr === '') {
+      info.textContent = '';
+      return;
+    }
+
+    const stock = parseFloat(stockAttr);
+    const kg = kgInput ? parseFloat(String(kgInput.value).replace(',', '.')) : NaN;
+
+    if (stock <= 0) {
+      info.textContent = 'Sin stock disponible.';
+      info.classList.add('text-danger');
+    } else if (!isNaN(kg) && kg > stock) {
+      info.textContent = `Stock insuficiente: disponible ${fmt(stock)} kg, pides ${fmt(kg)} kg.`;
+      info.classList.add('text-danger');
+    } else if (!isNaN(kg) && kg > 0) {
+      info.textContent = `Disponible: ${fmt(stock)} kg · quedarían ${fmt(stock - kg)} kg.`;
+      info.classList.add('text-success');
+    } else {
+      info.textContent = `Disponible: ${fmt(stock)} kg.`;
+      info.classList.add('text-secondary');
+    }
+  }
+
+  container.addEventListener('change', function (e) {
+    if (e.target.matches('select')) actualizarStock(e.target.closest('.detalle-row'));
+  });
+  container.addEventListener('input', function (e) {
+    if (e.target.matches('input[name$="-kg"]')) actualizarStock(e.target.closest('.detalle-row'));
+  });
+
+  filas().forEach(actualizarStock);
+
+  actualizarBotones();
 })();
 </script>
 {% endif %}

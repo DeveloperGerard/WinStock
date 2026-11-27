@@ -6,6 +6,7 @@ from .forms import RegistroForm, CrearFuncionarioForm, EditarFuncionarioForm, Lo
 from django.http import HttpResponse
 from .models import Funcionario
 from .decorators import rol_requerido
+from django.contrib import messages
 
 from apps.alimentos.models import Alimento
 from apps.raciones.models import Racion_diaria
@@ -78,9 +79,21 @@ def editarFuncionario(request, uuid):
         request.POST if request.method == "POST" else None,
         instance=funcionario,
     )
-    if form.is_valid():
-        form.save()
+    if funcionario.rut == request.user.rut:
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Usuario editado con exito.")
+            return redirect("funcionarios:cuentas")
+            
+    elif funcionario.is_superuser == True:
+        messages.error(request, "No se puede editar este usuario.")
         return redirect("funcionarios:cuentas")
+        
+    else:
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Usuario editado con exito.")
+            return redirect("funcionarios:cuentas")
     return render(request, "registrarFunc.html", {"form": form, "modo": "editar"})
 
 
@@ -88,8 +101,12 @@ def editarFuncionario(request, uuid):
 @require_POST
 def desabilitarFuncionario(request, uuid):
     funcionario = get_object_or_404(Funcionario, uuid=uuid)
-    funcionario.is_active = False
-    funcionario.save(update_fields=["is_active"])
+    if funcionario.is_superuser == True:
+        messages.error(request, "No se puede deshabilitar este usuario.")
+    elif funcionario.is_superuser == False:
+        funcionario.is_active = False
+        funcionario.save(update_fields=["is_active"])
+        messages.success(request, "Usuario deshabilitado con exito.")
     return redirect("funcionarios:cuentas")
 
 
@@ -99,4 +116,5 @@ def habilitarFuncionario(request, uuid):
     funcionario = get_object_or_404(Funcionario, uuid=uuid)
     funcionario.is_active = True
     funcionario.save(update_fields=["is_active"])
+    messages.success(request, "Usuario habilitado con exito.")
     return redirect("funcionarios:cuentas")

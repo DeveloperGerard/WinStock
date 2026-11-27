@@ -13,7 +13,7 @@ def crearalimentos(request):
     if request.method == "POST":
         form = AlimentoForm(data=request.POST)
         if form.is_valid():
-            form.save()
+            form.guardar(request.user)
             messages.success(request, "Alimento registrado correctamente.")
             return redirect("alimentos:crearalimentos")
     else:
@@ -55,7 +55,7 @@ def modificar_alimentos(request, alimento_id):
         instance=alimento,
     )
     if request.method == "POST" and form.is_valid():
-        form.save()
+        form.guardar(request.user)
         return redirect("alimentos:editar_alimentos")
 
     return render(

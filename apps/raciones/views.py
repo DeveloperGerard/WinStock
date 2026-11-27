@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Prefetch, Sum
 
 from apps.alimentos.models import Alimento, Movimientos_alimentos
-from .forms import RacionForm, DetalleRacionFormSet
+from .forms import RacionForm, DetalleRacionFormSet, HistorialFiltroForm
 from .models import Detalle_racion, Racion_diaria
 
 
@@ -85,4 +87,45 @@ def raciones(request):
         "formset": formset,
         "ultimas_raciones": ultimas_raciones,
         "offline_snapshot": offline_snapshot,
+    })
+
+
+
+@login_required
+def historial_raciones(request):
+    form = HistorialFiltroForm(request.GET or None)
+
+    raciones = (
+        Racion_diaria.objects
+        .select_related("lote_id", "usuario_id")
+        .prefetch_related(
+            Prefetch(
+                "detalle_racion_set",
+                queryset=Detalle_racion.objects.select_related("alimento_id").order_by("id"),
+            )
+        )
+        .annotate(total_kg=Sum("detalle_racion__kg"))
+        .order_by("-fecha", "-id")
+    )
+
+    if form.is_valid():
+        c = form.cleaned_data
+        if c["fecha_desde"]:
+            raciones = raciones.filter(fecha__gte=c["fecha_desde"])
+        if c["fecha_hasta"]:
+            raciones = raciones.filter(fecha__lte=c["fecha_hasta"])
+        if c["lote"]:
+            raciones = raciones.filter(lote_id=c["lote"])
+        if c["turno"]:
+            raciones = raciones.filter(turno=c["turno"])
+
+    page_obj = Paginator(raciones, 20).get_page(request.GET.get("page"))
+
+    params = request.GET.copy()
+    params.pop("page", None)
+
+    return render(request, "raciones/historial.html", {
+        "form": form,
+        "page_obj": page_obj,
+        "querystring": params.urlencode(),
     })
